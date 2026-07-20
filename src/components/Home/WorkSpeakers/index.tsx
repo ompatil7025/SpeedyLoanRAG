@@ -13,6 +13,8 @@ const WorkSpeakers = ({ showTitle = true }) => {
 
   // Load speakers from Supabase
   const loadSpeakers = async () => {
+    if (!supabase) return;
+
     const { data, error } = await supabase
       .from("speakers")
       .select("*")
@@ -28,6 +30,8 @@ const WorkSpeakers = ({ showTitle = true }) => {
   // Fetch + realtime updates
   useEffect(() => {
     loadSpeakers();
+
+    if (!supabase) return;
 
     const channel = supabase
       .channel("realtime speakers")
