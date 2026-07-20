@@ -1,0 +1,33 @@
+/*
+  # ── Security Headers ──────────────────────────────────────
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(self)
+
+  # ── Performance / Caching ─────────────────────────────────
+  Cache-Control: public, max-age=31536000, immutable
+
+  # ── AI Crawl Permission Headers ───────────────────────────
+  X-Robots-Tag: index, follow
+  AI-Indexing: allow
+
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/images/*
+  Cache-Control: public, max-age=2592000
+
+/logo.png
+  Cache-Control: public, max-age=2592000
+
+/robots.txt
+  Cache-Control: public, max-age=86400
+
+/sitemap.xml
+  Cache-Control: public, max-age=86400
+
+/llms.txt
+  Cache-Control: public, max-age=86400
+  Content-Type: text/plain; charset=utf-8

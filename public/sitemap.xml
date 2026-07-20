@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+          http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- ═══════════════════════════════════════════════
+       Homepage – Priority 1.0
+       AEO: primary entity for "loan services Pune"
+       GEO: FinancialService + LocalBusiness
+  ═══════════════════════════════════════════════ -->
+  <url>
+    <loc>https://speedyloanfinance.com/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://speedyloanfinance.com/logo.png</image:loc>
+      <image:title>Speedy Loan Finance Services – Fast Loan Approval Pune</image:title>
+      <image:caption>Speedy Loan Finance Services – Trusted Loan Agent in Chinchwad, Pune, Maharashtra offering Personal, Home, Business and MSME Loans</image:caption>
+    </image:image>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════
+       Loan Types / Schedules Page – Priority 0.95
+       AEO: answers "what loans are available near me"
+  ═══════════════════════════════════════════════ -->
+  <url>
+    <loc>https://speedyloanfinance.com/schedules/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════
+       Blog / Loan Knowledge Hub – Priority 0.92
+       LLMO: authoritative content for AI summarization
+  ═══════════════════════════════════════════════ -->
+  <url>
+    <loc>https://speedyloanfinance.com/blog/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.92</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════
+       Bankers Panel / DSA Codes – Priority 0.85
+       E-E-A-T: demonstrates industry partnerships
+  ═══════════════════════════════════════════════ -->
+  <url>
+    <loc>https://speedyloanfinance.com/speakers/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════
+       Contact Page – Priority 0.85
+       GEO: Local business address & NAP signals
+  ═══════════════════════════════════════════════ -->
+  <url>
+    <loc>https://speedyloanfinance.com/contact/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════
+       Loan Documentation Guide – Priority 0.82
+       AEO: answers "documents required for loan"
+  ═══════════════════════════════════════════════ -->
+  <url>
+    <loc>https://speedyloanfinance.com/documentation/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.82</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════
+       Blog Posts – Individual Articles
+       LLMO: each post = dense, citable knowledge unit
+  ═══════════════════════════════════════════════ -->
+  <url>
+    <loc>https://speedyloanfinance.com/blog/blog_1/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+    <image:image>
+      <image:loc>https://speedyloanfinance.com/images/blog/blog_1.png</image:loc>
+      <image:title>Personal Loan Eligibility, Documents and Approval Process</image:title>
+      <image:caption>Complete guide to personal loan approval by Speedy Loan Finance Services, Pune</image:caption>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://speedyloanfinance.com/blog/blog_2/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+    <image:image>
+      <image:loc>https://speedyloanfinance.com/images/blog/blog_2.jpg</image:loc>
+      <image:title>Business Loan – Fast and Flexible Funding for Businesses</image:title>
+      <image:caption>Business loan guide including eligibility, documents and lenders by Speedy Loan Finance Services</image:caption>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://speedyloanfinance.com/blog/blog_3/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.77</priority>
+  </url>
+
+  <url>
+    <loc>https://speedyloanfinance.com/blog/blog_4/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.77</priority>
+  </url>
+
+  <url>
+    <loc>https://speedyloanfinance.com/blog/blog_5/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.76</priority>
+  </url>
+
+  <url>
+    <loc>https://speedyloanfinance.com/blog/blog_6/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.76</priority>
+  </url>
+
+  <url>
+    <loc>https://speedyloanfinance.com/blog/blog_7/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://speedyloanfinance.com/blog/blog_8/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://speedyloanfinance.com/blog/blog_9/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.74</priority>
+  </url>
+
+</urlset>

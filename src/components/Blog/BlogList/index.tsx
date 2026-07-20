@@ -1,0 +1,30 @@
+import BlogCard from '@/components/SharedComponent/Blog/blogCard';
+import { getAllPosts } from "@/utils/markdown";
+import React from 'react';
+
+const BlogList: React.FC = () => {
+    const posts = getAllPosts(["title", "excerpt", "coverImage", "slug"]);
+
+    return (
+        <section className="content-visibility-auto flex flex-wrap justify-center pt-8 dark:bg-darkmode pb-0" id="blog">
+            <div className="container mx-auto">
+                <div className="grid grid-cols-12 gap-7">
+                    {posts.map((blog, i) => (
+                        <div
+                            key={i}
+                            className="w-full lg:col-span-4 md:col-span-6 col-span-6"
+                            data-aos="fade-up"
+                            data-aos-delay="50"
+                            data-aos-duration="500"
+                            >
+
+                            <BlogCard blog={blog} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
+
+export default BlogList;

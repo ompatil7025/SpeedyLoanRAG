@@ -1,0 +1,125 @@
+# ============================================================
+# robots.txt – Speedy Loan Finance Services
+# Optimized for AEO | GEO | LLMO | AISEO | E-E-A-T | 2026
+# ============================================================
+
+# ── Standard Web Crawlers ──────────────────────────────────
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /signin/
+Disallow: /signup/
+Disallow: /_next/
+Crawl-delay: 1
+
+# ── Google (All Bots) ──────────────────────────────────────
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /signin/
+Disallow: /signup/
+
+User-agent: Googlebot-Image
+Allow: /images/
+Allow: /logo.png
+
+User-agent: Googlebot-Video
+Allow: /
+
+User-agent: Googlebot-News
+Allow: /blog/
+
+# Google AI / Bard / Gemini training & SGE (AI Overviews)
+User-agent: Google-Extended
+Allow: /
+Disallow: /api/
+Disallow: /signin/
+Disallow: /signup/
+
+# ── OpenAI / ChatGPT (AEO + LLMO) ─────────────────────────
+User-agent: GPTBot
+Allow: /
+Disallow: /api/
+Disallow: /signin/
+Disallow: /signup/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /api/
+
+# ChatGPT Plugin crawler
+User-agent: ChatGPT-User
+Allow: /
+
+# ── Anthropic Claude (LLMO) ───────────────────────────────
+User-agent: ClaudeBot
+Allow: /
+Disallow: /api/
+Disallow: /signin/
+Disallow: /signup/
+
+User-agent: Claude-Web
+Allow: /
+
+# ── Perplexity AI (AEO + GEO) ─────────────────────────────
+User-agent: PerplexityBot
+Allow: /
+Disallow: /api/
+Disallow: /signin/
+Disallow: /signup/
+
+# ── Microsoft Copilot / Bing AI (AEO) ─────────────────────
+User-agent: bingbot
+Allow: /
+Disallow: /api/
+
+User-agent: BingPreview
+Allow: /
+
+# Copilot / Sydney / Prometheus AI Answer Engine
+User-agent: msnbot
+Allow: /
+
+# ── Apple Intelligence / Siri (AISEO) ─────────────────────
+User-agent: Applebot
+Allow: /
+Disallow: /api/
+Disallow: /signin/
+Disallow: /signup/
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /api/
+
+# ── Meta AI (LLMO) ────────────────────────────────────────
+User-agent: FacebookBot
+Allow: /
+Disallow: /api/
+
+# ── Amazon Alexa / Rufus (AISEO) ──────────────────────────
+User-agent: Amazonbot
+Allow: /
+Disallow: /api/
+
+# ── Common SEO Crawlers ────────────────────────────────────
+User-agent: Slurp
+Allow: /
+Disallow: /api/
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+# ── Media Crawlers ─────────────────────────────────────────
+User-agent: MSNBot-Media
+Allow: /images/
+Allow: /logo.png
+
+# ── Sitemaps ───────────────────────────────────────────────
+Sitemap: https://speedyloanfinance.com/sitemap.xml
+Sitemap: https://speedyloanfinance.com/sitemap-blog.xml
