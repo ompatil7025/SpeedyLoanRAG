@@ -45,7 +45,7 @@ const WorkSpeakers = ({ showTitle = true }) => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase?.removeChannel(channel);
     };
   }, []);
 
@@ -66,9 +66,8 @@ const WorkSpeakers = ({ showTitle = true }) => {
               data-aos="fade-up"
               data-aos-delay={`${index * 300}`}
               data-aos-duration="1000"
-              className={`col-span-1 group overflow-hidden ${
-                index % 2 === 1 ? "lg:mt-28 mt-0" : ""
-              }`}
+              className={`col-span-1 group overflow-hidden ${index % 2 === 1 ? "lg:mt-28 mt-0" : ""
+                }`}
             >
               <div className="overflow-hidden rounded-lg">
                 <Image
@@ -131,7 +130,7 @@ const WorkSpeakers = ({ showTitle = true }) => {
 
       </section>
 
-      
+
     </>
   );
 };
