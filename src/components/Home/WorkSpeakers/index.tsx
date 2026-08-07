@@ -52,11 +52,7 @@ const WorkSpeakers = ({ showTitle = true }) => {
   return (
     <>
       <section className={`content-visibility-auto dark:bg-darkmode ${pathname === "/" ? "" : ""}`}>
-        {showTitle && (
-          <h2 className="text-center pb-12">
-            Banks Included in Our Services.
-          </h2>
-        )}
+
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 items-stretch gap-6 mx-4 md:mx-7">
 

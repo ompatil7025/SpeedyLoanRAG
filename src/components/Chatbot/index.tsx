@@ -30,6 +30,7 @@ interface UserProfile {
 }
 
 type QuestionStep =
+  | "language_select"
   | "loan_type"
   | "employment_type"
   | "business_nature"
@@ -50,6 +51,8 @@ type QuestionStep =
   | "complete"
   | "freetext";
 
+type Language = "English" | "Hindi" | "Marathi";
+
 interface QuestionOption {
   label: string;
   value: string;
@@ -61,24 +64,20 @@ interface QuestionOption {
    QUESTIONNAIRE CONFIG
 ───────────────────────────────────────────────────────────── */
 const QUESTIONNAIRE: Record<
-  Exclude<QuestionStep, "complete" | "freetext" | "cibil_estimator_prompt" | "cibil_estimator_q1" | "cibil_estimator_q2" | "cibil_estimator_q3">,
+  Exclude<QuestionStep, "language_select" | "complete" | "freetext" | "cibil_estimator_prompt" | "cibil_estimator_q1" | "cibil_estimator_q2" | "cibil_estimator_q3">,
   { question: string; options: QuestionOption[] }
 > = {
   loan_type: {
     question: "What type of loan are you looking for?",
     options: [
       { icon: "💼", label: "Personal Loan", value: "Personal Loan", sub: "₹50K – ₹40 Lakhs" },
-      { icon: "🏢", label: "Business Loan", value: "Business Loan", sub: "₹5L – ₹50 Crore" },
-      { icon: "🏠", label: "Home Loan", value: "Home Loan", sub: "₹10L – ₹50 Crore" },
-      { icon: "🏗️", label: "Loan Against Property", value: "Loan Against Property", sub: "₹10L – ₹100 Crore" },
-      { icon: "💹", label: "Working Capital", value: "Working Capital", sub: "₹50L – ₹100 Crore" },
-      { icon: "🛡️", label: "Insurance & Investment", value: "Insurance & Investment", sub: "₹25L – ₹10 Crore+" },
-      { icon: "🏗️", label: "Lease Rental Discounting", value: "Lease Rental Discounting", sub: "₹2Cr – ₹500 Crore" },
-      { icon: "🏭", label: "MSME Loan", value: "MSME Loan", sub: "₹10L – ₹10 Crore" },
-      { icon: "📈", label: "Project Funding", value: "Project Funding", sub: "₹5Cr – ₹20,000 Crore" },
-      { icon: "📊", label: "Loan Against Shares", value: "Loan Against Shares", sub: "₹10L – ₹100 Crore" },
+      { icon: "🏢", label: "Business Loan", value: "Business Loan", sub: "₹2L – ₹2 Crore" },
+      { icon: "🏠", label: "Home Loan", value: "Home Loan", sub: "Up to ₹5 Crore" },
+      { icon: "🏗️", label: "Loan Against Property", value: "Loan Against Property", sub: "Up to 65% property value" },
+      { icon: "💹", label: "Working Capital", value: "Working Capital", sub: "CC / OD Facility" },
+      { icon: "🛡️", label: "Insurance & Investment", value: "Insurance & Investment", sub: "Term | Health | MF" },
       { icon: "🎓", label: "Education Loan", value: "Education Loan", sub: "₹5L – ₹1.5 Crore" },
-      { icon: "🔄", label: "Balance Transfer", value: "Balance Transfer", sub: "₹10L – ₹50 Crore+" },
+      { icon: "🔄", label: "Balance Transfer", value: "Balance Transfer", sub: "Reduce your EMI" },
     ],
   },
   employment_type: {
@@ -215,26 +214,22 @@ const SYSTEM_PROMPT = `You are "Redneck Ai", the expert AI loan advisor for **Sp
 
 ## Loan Products
 1. **Personal Loan:** ₹50K–₹40L at 10.5%–24% p.a., 12–60 months
-2. **Business Loan:** ₹5 Lakhs–₹50 Crore at 12%–26% p.a., 12–48 months
-3. **Home Loan:** Up to ₹50 Crore at 8.40%–12% p.a., up to 30 years
-4. **Working Capital:** Cash Credit (CC), Overdraft (OD) facilities. Up to ₹100 Crore for corporates. Rate: 9%–16% p.a.
-5. **Insurance & Investment:** Term life, health, critical illness insurance. Mutual funds, SIP, NPS, bonds. Tailored wealth management for HNIs.
-6. **Lease Rental Discounting (LRD):** Loan against future rental income. Up to ₹500 Crore. Rate: 8%–11% p.a. Tenure up to 15 years. For commercial property owners.
-7. **MSME Loan:** ₹10 Lakhs–₹10 Crore at 9%–18% p.a. Under MUDRA, CGTMSE, PMEGP. Udyam registration required.
-8. **Loan Against Property:** Up to ₹100 Crore (up to 65% of property value) at 9%–14% p.a., up to 20 years
-9. **Project Funding:** ₹5 Crore – ₹20,000 Crore. For infrastructure, real estate, manufacturing, energy. Structured finance with consortium banking.
-10. **Loan Against Shares/Securities:** Up to ₹100 Crore (up to 80% of portfolio value). Rate: 8%–12% p.a. For HNIs and investors. Demat-based, quick disbursal.
-11. **Education Loan:** Up to ₹1.5 Crore at 8.5%–13% p.a. for India/abroad
-12. **Balance Transfer:** Switch high-interest loans to lower rates + top-up option
+2. **Business Loan:** ₹2 Lakhs–₹2 Crore at 12%–26% p.a., 12–48 months
+3. **Home Loan:** Up to ₹5 Crore at 8.40%–12% p.a., up to 30 years
+4. **Working Capital:** Cash Credit (CC), Overdraft (OD) facilities. Rate: 9%–16% p.a.
+5. **Insurance & Investment:** Term life, health, critical illness insurance. Mutual funds, SIP, NPS, bonds.
+6. **Loan Against Property:** Up to 65% of property value at 9%–14% p.a., up to 20 years
+7. **Education Loan:** Up to ₹1.5 Crore at 8.5%–13% p.a. for India/abroad
+8. **Balance Transfer:** Switch high-interest loans to lower rates + top-up option
 
 ## Persona Rules
-- You are a **senior financial advisor** — authoritative, warm, and deeply knowledgeable
-- When user profile data is provided, acknowledge their specific situation and give eligibility verdict.
+- You are a **RAG-powered senior financial advisor** — authoritative, warm, and deeply knowledgeable.
+- When user profile data is provided in the message, acknowledge their specific situation and give eligibility verdict.
 - List exact documents needed based on the loan type.
-- Do NOT output any estimated interest rates, maximum amount, tenure, bank matches, or EMI estimations in a block. Remove those parts.
 - ALWAYS end with exactly: [WHATSAPP_BTN]
 - Only answer finance, loan, and company-related questions.
-- Be encouraging and solution-focused.`;
+- Be encouraging and solution-focused.
+- Format responses with bullet points, bold headers, and organized sections.`;
 
 /* ─────────────────────────────────────────────────────────────
    HELPERS
@@ -578,6 +573,83 @@ function TypingIndicator() {
   );
 }
 
+/* ─────────────────────────────────────────────────────────────
+   LANGUAGE SELECT CARD
+───────────────────────────────────────────────────────────── */
+function LanguageSelectCard({ onSelect }: { onSelect: (lang: Language) => void }) {
+  const langs: { code: Language; name: string; native: string; desc: string; emoji: string; bg: string; shadow: string }[] = [
+    {
+      code: "English",
+      name: "English",
+      native: "English",
+      desc: "Communicate in English",
+      emoji: "🇬🇧",
+      bg: "linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)",
+      shadow: "rgba(37,99,235,0.35)",
+    },
+    {
+      code: "Hindi",
+      name: "हिंदी",
+      native: "Hindi",
+      desc: "हिंदी में बात करें",
+      emoji: "🇮🇳",
+      bg: "linear-gradient(135deg, #92400e 0%, #d97706 100%)",
+      shadow: "rgba(217,119,6,0.35)",
+    },
+    {
+      code: "Marathi",
+      name: "मराठी",
+      native: "Marathi",
+      desc: "मराठीत संवाद साधा",
+      emoji: "🏵️",
+      bg: "linear-gradient(135deg, #064e3b 0%, #059669 100%)",
+      shadow: "rgba(5,150,105,0.35)",
+    },
+  ];
+
+  return (
+    <div
+      className="rounded-2xl rounded-bl-sm overflow-hidden max-w-[92%] w-full"
+      style={{
+        background: "rgba(255,255,255,0.95)",
+        border: "1px solid rgba(203,213,225,0.7)",
+        boxShadow: "0 4px 20px rgba(15,30,70,0.1)",
+        backdropFilter: "blur(8px)",
+      }}
+    >
+      <div className="px-4 pt-4 pb-3">
+        <p className="text-sm font-bold text-slate-800 leading-snug">🌐 Choose your preferred language</p>
+        <p className="text-[11px] text-slate-400 mt-1 font-medium tracking-wide">
+          भाषा चुनें &nbsp;·&nbsp; भाषा निवडा
+        </p>
+      </div>
+      <div className="px-3 pb-4 flex flex-col gap-2.5">
+        {langs.map((lang, i) => (
+          <button
+            key={lang.code}
+            onClick={() => onSelect(lang.code)}
+            className="group w-full text-left px-4 py-3 rounded-xl text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            style={{
+              background: lang.bg,
+              boxShadow: `0 4px 14px ${lang.shadow}`,
+              animationDelay: `${i * 80}ms`,
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">{lang.emoji}</span>
+              <div className="flex-1">
+                <p className="font-extrabold text-base leading-tight">{lang.name}</p>
+                <p className="text-[11px] text-white/70 leading-tight mt-0.5">{lang.desc}</p>
+              </div>
+              <span className="text-white/50 group-hover:text-white group-hover:translate-x-0.5 transition-all text-lg">›</span>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function QuestionnaireCard({
   step,
   employmentType,
@@ -585,7 +657,7 @@ function QuestionnaireCard({
 }: {
   step: Exclude<
     QuestionStep,
-    "complete" | "freetext" | "cibil_estimator_prompt" | "cibil_estimator_q1" | "cibil_estimator_q2" | "cibil_estimator_q3"
+    "language_select" | "complete" | "freetext" | "cibil_estimator_prompt" | "cibil_estimator_q1" | "cibil_estimator_q2" | "cibil_estimator_q3"
   >;
   employmentType?: string;
   onSelect: (value: string, label: string) => void;
@@ -625,7 +697,7 @@ function QuestionnaireCard({
         </p>
       </div>
       <div className="px-3 pb-3 grid grid-cols-2 gap-2">
-        {q.options.map(opt => (
+        {q.options.map((opt: QuestionOption) => (
           <button
             key={opt.value}
             onClick={() => onSelect(opt.value, opt.label)}
@@ -672,6 +744,8 @@ function EstimatorQuestionCard({
 }
 
 function ProgressBar({ step, loanType }: { step: QuestionStep; loanType?: string }) {
+  if (step === "language_select") return null;
+
   let mappedStep = step;
   if (
     step === "cibil_estimator_prompt" ||
@@ -719,21 +793,20 @@ export default function LoanChatbot() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState<QuestionStep>("loan_type");
+  const [currentStep, setCurrentStep] = useState<QuestionStep>("language_select");
   const [userProfile, setUserProfile] = useState<UserProfile>({});
   const [estimatorAnswers, setEstimatorAnswers] = useState<Record<string, number>>({});
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>("English");
 
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
       role: "bot",
-      text: `👋 **Welcome to Speedy Loan Finance Services!**
+      text: `🙏 **Welcome · स्वागत · स्वागत आहे!**
 
-I'm **Redneck Ai**, your personal AI-powered loan advisor. I'll guide you step by step to find the **perfect loan** for your needs.
+I'm **Redneck Ai** — your AI-powered loan advisor for **Speedy Loan Finance Services**, Pune.
 
-We partner with **200+ banks & NBFCs** — HDFC, SBI, ICICI, Bajaj Finance and more — to get you the **best rates with approvals in 72 hours.**
-
-Let me start by asking a few quick questions to understand your requirements better. ⬇️`,
+To serve you better, please select your **preferred language** below. 👇`,
       timestamp: new Date(),
     },
   ]);
@@ -760,8 +833,108 @@ Let me start by asking a few quick questions to understand your requirements bet
     }
   }, [hasOpened]);
 
+  /* ── Language-aware questionnaire confirmation messages ─── */
+  const getConfirmText = useCallback((nextStep: string, lang: Language, profile: UserProfile): string => {
+    const isSalaried = profile.employmentType === "Salaried";
+    const map: Record<Language, Record<string, string>> = {
+      English: {
+        employment_type: "What is your employment type?",
+        business_nature: "Nature of Business / Business name?",
+        monthly_income_salaried: "What is your monthly net salary?",
+        monthly_income_self: "What was your last year financial turnover?",
+        net_profit: "What was your net profit (PAT) in the last financial year?",
+        monthly_obligations: "What are your monthly net obligations (existing EMIs) if any?",
+        home_loan_product: "For which product do you want the Home Loan?",
+        property_type: "What is the type of property you are purchasing?",
+        property_usage: "What is the type of property?",
+        property_valuation: "What is the exact property valuation amount?",
+        loan_amount: "What is your required loan amount?",
+        cibil_score: "What is your approximate CIBIL / Credit score?",
+        tenure: "What is your preferred loan tenure?",
+      },
+      Hindi: {
+        employment_type: "आपका रोजगार का प्रकार क्या है?",
+        business_nature: "आपके व्यवसाय की प्रकृति / नाम?",
+        monthly_income_salaried: "आपकी मासिक नेट सैलरी क्या है?",
+        monthly_income_self: "आपका पिछले साल का वित्तीय टर्नओवर क्या था?",
+        net_profit: "पिछले वित्त वर्ष में शुद्ध लाभ (PAT) कितना था?",
+        monthly_obligations: "आपकी मौजूदा मासिक EMI कितनी है?",
+        home_loan_product: "आप किस उद्देश्य के लिए होम लोन चाहते हैं?",
+        property_type: "आप कौनसी संपत्ति खरीद रहे हैं?",
+        property_usage: "संपत्ति का उपयोग क्या है?",
+        property_valuation: "संपत्ति का सटीक मूल्यांकन क्या है?",
+        loan_amount: "आपको कितने लोन की जरूरत है?",
+        cibil_score: "आपका CIBIL / क्रेडिट स्कोर लगभग क्या है?",
+        tenure: "आपकी पसंदीदा लोन अवधि क्या है?",
+      },
+      Marathi: {
+        employment_type: "तुमचा रोजगाराचा प्रकार काय आहे?",
+        business_nature: "तुमच्या व्यवसायाचे स्वरूप / नाव?",
+        monthly_income_salaried: "तुमचा मासिक नेट पगार किती आहे?",
+        monthly_income_self: "मागील वर्षाचा आर्थिक उलाढाल किती होता?",
+        net_profit: "मागील आर्थिक वर्षात निव्वळ नफा (PAT) किती होता?",
+        monthly_obligations: "तुमचे विद्यमान मासिक EMI किती आहे?",
+        home_loan_product: "होम लोन कोणत्या उद्देशासाठी हवे आहे?",
+        property_type: "तुम्ही कोणती मालमत्ता खरेदी करत आहात?",
+        property_usage: "मालमत्तेचा वापर कोणता आहे?",
+        property_valuation: "मालमत्तेचे नक्की मूल्यांकन किती आहे?",
+        loan_amount: "तुम्हाला किती कर्ज हवे आहे?",
+        cibil_score: "तुमचा अंदाजे CIBIL / क्रेडिट स्कोर काय आहे?",
+        tenure: "तुम्हाला पसंतीचा कर्जाचा कालावधी किती आहे?",
+      },
+    };
+    const t = map[lang];
+    if (nextStep === "monthly_income") return isSalaried ? t.monthly_income_salaried : t.monthly_income_self;
+    return t[nextStep] || "";
+  }, []);
+
   /* ── Questionnaire selection handler ─────────────────────── */
   const handleQuestionnaireSelect = useCallback(async (value: string, label: string) => {
+    // ── Language selection (first step) ──────────────────────
+    if (currentStep === "language_select") {
+      const lang = value as Language;
+      setSelectedLanguage(lang);
+
+      const userMsg: Message = { id: Date.now().toString(), role: "user", text: label, timestamp: new Date() };
+      setMessages(prev => [...prev, userMsg]);
+
+      const greetings: Record<Language, string> = {
+        English: `👋 **Welcome to Speedy Loan Finance Services!**
+
+I'm **Redneck Ai**, your personal AI-powered loan advisor. I'll guide you step by step to find the **perfect loan** for your needs.
+
+We partner with **200+ banks & NBFCs** — HDFC, SBI, ICICI, Bajaj Finance and more — to get you the **best rates with approvals in 72 hours.**
+
+Let me start with a few quick questions. ⬇️`,
+        Hindi: `👋 **स्पीडी लोन फाइनेंस सर्विसेज में आपका स्वागत है!**
+
+मैं **Redneck Ai** हूं, आपका व्यक्तिगत AI लोन सलाहकार। मैं आपको सही लोन खोजने में हर कदम पर मार्गदर्शन करूंगा।
+
+हम **200+ बैंकों और NBFCs** के साथ काम करते हैं — HDFC, SBI, ICICI, बजाज फाइनेंस और अन्य — सर्वोत्तम दरों पर 72 घंटों में अनुमोदन दिलाने के लिए।
+
+कुछ त्वरित प्रश्नों से शुरू करते हैं। ⬇️`,
+        Marathi: `👋 **स्पीडी लोन फायनान्स सर्व्हिसेसमध्ये आपले स्वागत आहे!**
+
+मी **Redneck Ai** आहे, तुमचा वैयक्तिक AI कर्ज सल्लागार. मी तुम्हाला योग्य कर्ज शोधण्यासाठी प्रत्येक पावलावर मार्गदर्शन करेन.
+
+आम्ही **200+ बँका आणि NBFCs** सोबत काम करतो — HDFC, SBI, ICICI, बजाज फायनान्स आणि इतर — सर्वोत्तम दरात 72 तासांत मंजुरी मिळवण्यासाठी.
+
+चला काही प्रश्नांनी सुरुवात करूया. ⬇️`,
+      };
+
+      setIsLoading(true);
+      await new Promise(r => setTimeout(r, 500));
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: "bot",
+        text: greetings[lang],
+        timestamp: new Date(),
+      }]);
+      setIsLoading(false);
+      setCurrentStep("loan_type");
+      return;
+    }
+
     const activeSteps = getActiveSteps(userProfile.loanType || (currentStep === "loan_type" ? value : undefined));
     const stepIndex = activeSteps.indexOf(currentStep as any);
     
@@ -795,83 +968,63 @@ Let me start by asking a few quick questions to understand your requirements bet
       setCurrentStep("cibil_estimator_prompt");
       setIsLoading(true);
       await new Promise(r => setTimeout(r, 600));
-      setMessages(prev => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          role: "bot",
-          text: `No problem! I can help you estimate your CIBIL score right here using a quick 3-question analyzer.
-
-Click the **Check Credit Score** button below to start.`,
-          timestamp: new Date(),
-        },
-      ]);
+      const noScoreMsg: Record<Language, string> = {
+        English: `No problem! I can help you estimate your CIBIL score using a quick 3-question analyzer.\n\nClick the **Check Credit Score** button below to start.`,
+        Hindi: `कोई बात नहीं! मैं 3 सवालों के जरिए आपका CIBIL स्कोर का अनुमान लगा सकता हूं।\n\nनीचे **Check Credit Score** बटन दबाएं।`,
+        Marathi: `काळजी नको! 3 प्रश्नांद्वारे मी तुमचा CIBIL स्कोर अंदाज करू शकतो.\n\nखाली **Check Credit Score** बटण दाबा.`,
+      };
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: "bot", text: noScoreMsg[selectedLanguage], timestamp: new Date() }]);
       setIsLoading(false);
       return;
     }
 
     // Update profile
     const newProfile = { ...userProfile, [profileKey]: value };
-    if (currentStep === "loan_type") {
-      newProfile.loanType = value;
-    }
+    if (currentStep === "loan_type") newProfile.loanType = value;
     setUserProfile(newProfile);
 
     const nextStepIndex = stepIndex + 1;
 
     if (nextStepIndex >= activeSteps.length) {
-      // Questionnaire complete — generate recommendation
+      // Questionnaire complete — generate RAG-powered recommendation
       setCurrentStep("complete");
       setIsLoading(true);
-
       await new Promise(r => setTimeout(r, 800));
 
       let reply = "";
       try {
-        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-        if (apiKey && apiKey.length > 20) {
-          if (!chatRef.current) {
-            const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: SYSTEM_PROMPT });
-            chatRef.current = model.startChat({ generationConfig: { temperature: 0.6, maxOutputTokens: 700 } });
-          }
-          const profileSummary = `User Profile:
+        const profileSummary = `User Profile:
 - Loan Type: ${newProfile.loanType}
 - Employment: ${newProfile.employmentType}
 ${newProfile.businessNature ? `- Business Nature/Name: ${newProfile.businessNature}\n` : ""}${newProfile.monthlyIncome ? `- Monthly Income/Turnover: ${newProfile.monthlyIncome}\n` : ""}${newProfile.netProfit ? `- Net Profit: ${newProfile.netProfit}\n` : ""}${newProfile.homeLoanProduct ? `- Home Loan Product: ${newProfile.homeLoanProduct}\n` : ""}${newProfile.propertyType ? `- Property Purchase Type: ${newProfile.propertyType}\n` : ""}${newProfile.propertyUsage ? `- Mortgaged Property Usage: ${newProfile.propertyUsage}\n` : ""}${newProfile.propertyValuation ? `- Exact Property Valuation: ${newProfile.propertyValuation}\n` : ""}${newProfile.monthlyObligations ? `- Monthly Obligations: ${newProfile.monthlyObligations}\n` : ""}- Required Loan Amount: ${newProfile.loanAmount}
 ${newProfile.cibilScore ? `- CIBIL Score: ${newProfile.cibilScore}\n` : ""}${newProfile.tenure ? `- Preferred Tenure: ${newProfile.tenure}\n` : ""}
 
-Please provide a detailed, personalized loan recommendation based on this profile. Include eligibility verdict, required documents, and next steps. Do NOT output estimated interest rates, maximum amount, tenure, bank matches, or EMI estimations in a block. Keep the response professional and clear.`;
+Provide a detailed, personalized loan recommendation. Include eligibility verdict, required documents, and next steps.`;
 
-          const result = await chatRef.current.sendMessage(profileSummary);
-          const raw = result.response.text();
-          reply = raw
-            ? (raw.includes("[WHATSAPP_BTN]") ? raw : `${raw}\n\n[WHATSAPP_BTN]`)
-            : buildProfileResponse(newProfile);
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: profileSummary, history: [], language: selectedLanguage }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          reply = data.reply || buildProfileResponse(newProfile);
         } else {
-          await new Promise(r => setTimeout(r, 600));
           reply = buildProfileResponse(newProfile);
         }
       } catch {
-        chatRef.current = null;
         reply = buildProfileResponse(newProfile);
       }
 
-      setMessages(prev => [...prev, {
-        id: (Date.now() + 1).toString(),
-        role: "bot",
-        text: reply,
-        timestamp: new Date(),
-      }]);
+      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "bot", text: reply, timestamp: new Date() }]);
 
-      // Add follow-up prompt
+      const followUpMsg: Record<Language, string> = {
+        English: "💬 You can now ask me **any follow-up questions** about your loan, documents, process, or anything else. I'm here to help!\n\n[WHATSAPP_BTN]",
+        Hindi: "💬 अब आप मुझसे अपने लोन, दस्तावेज़, प्रक्रिया या किसी भी चीज़ के बारे में **कोई भी सवाल पूछ सकते हैं।** मैं यहाँ हूं!\n\n[WHATSAPP_BTN]",
+        Marathi: "💬 आता तुम्ही तुमच्या कर्ज, कागदपत्रे, प्रक्रिया किंवा इतर कोणत्याही गोष्टींबद्दल **कोणतेही प्रश्न विचारू शकता.** मी इथे आहे!\n\n[WHATSAPP_BTN]",
+      };
       setTimeout(() => {
-        setMessages(prev => [...prev, {
-          id: (Date.now() + 2).toString(),
-          role: "bot",
-          text: "💬 You can now ask me **any follow-up questions** about your loan, documents, process, or anything else. I'm here to help!\n\n[WHATSAPP_BTN]",
-          timestamp: new Date(),
-        }]);
+        setMessages(prev => [...prev, { id: (Date.now() + 2).toString(), role: "bot", text: followUpMsg[selectedLanguage], timestamp: new Date() }]);
       }, 1200);
 
       setIsLoading(false);
@@ -880,48 +1033,13 @@ Please provide a detailed, personalized loan recommendation based on this profil
       const nextStep = activeSteps[nextStepIndex];
       setCurrentStep(nextStep);
 
-      // Add bot confirmation message
-      let confirm = "";
-      if (nextStep === "employment_type") {
-        confirm = "What is your employment type?";
-      } else if (nextStep === "business_nature") {
-        confirm = "Nature of Business - business name";
-      } else if (nextStep === "monthly_income") {
-        const isSalaried = newProfile.employmentType === "Salaried";
-        confirm = isSalaried
-          ? "What is your monthly net salary?"
-          : "What was your last year financial turnover?";
-      } else if (nextStep === "net_profit") {
-        confirm = "What was your net profit (PAT) in the last financial year?";
-      } else if (nextStep === "monthly_obligations") {
-        confirm = "What are your monthly net obligations (existing EMIs) if any?";
-      } else if (nextStep === "home_loan_product") {
-        confirm = "For which product do you want the Home Loan?";
-      } else if (nextStep === "property_type") {
-        confirm = "What is the type of property you are purchasing?";
-      } else if (nextStep === "property_usage") {
-        confirm = "What is the type of property?";
-      } else if (nextStep === "property_valuation") {
-        confirm = "What is the exact property valuation amount?";
-      } else if (nextStep === "loan_amount") {
-        confirm = "What is your required loan amount?";
-      } else if (nextStep === "cibil_score") {
-        confirm = "What is your approximate CIBIL / Credit score?";
-      } else if (nextStep === "tenure") {
-        confirm = "What is your preferred loan tenure?";
-      }
-
+      const confirm = getConfirmText(nextStep, selectedLanguage, newProfile);
       if (confirm) {
         await new Promise(r => setTimeout(r, 400));
-        setMessages(prev => [...prev, {
-          id: (Date.now() + 1).toString(),
-          role: "bot",
-          text: confirm,
-          timestamp: new Date(),
-        }]);
+        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "bot", text: confirm, timestamp: new Date() }]);
       }
     }
-  }, [currentStep, userProfile]);
+  }, [currentStep, userProfile, selectedLanguage, getConfirmText]);
 
   /* ── Credit Score Estimator handlers ────────────────────── */
   const handleStartEstimator = useCallback(async () => {
@@ -1000,7 +1118,7 @@ Please provide a detailed, personalized loan recommendation based on this profil
     }
   }, [estimatorAnswers]);
 
-  /* ── Free-text message handler ───────────────────────────── */
+  /* ── Free-text message handler (RAG-powered) ────────────── */
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isLoading) return;
 
@@ -1016,21 +1134,33 @@ Please provide a detailed, personalized loan recommendation based on this profil
 
     let reply = "";
     try {
-      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-      if (apiKey && apiKey.length > 20) {
-        if (!chatRef.current) {
-          const genAI = new GoogleGenerativeAI(apiKey);
-          const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: SYSTEM_PROMPT });
-          chatRef.current = model.startChat({ generationConfig: { temperature: 0.65, maxOutputTokens: 600 } });
-        }
-        const contextPrefix = Object.keys(userProfile).length > 0
-          ? `[User profile: Loan=${userProfile.loanType}, Employment=${userProfile.employmentType}, Income=${userProfile.monthlyIncome}, Amount=${userProfile.loanAmount}, CIBIL=${userProfile.cibilScore}, Tenure=${userProfile.tenure}] `
-          : "";
-        const result = await chatRef.current.sendMessage(contextPrefix + text.trim());
-        const raw = result.response.text();
-        reply = raw ? (raw.includes("[WHATSAPP_BTN]") ? raw : `${raw}\n\n[WHATSAPP_BTN]`) : getFallbackResponse(text, userProfile);
+      // Build conversation history for RAG API (last 10 messages)
+      const recentMessages = messages.slice(-10);
+      const history = recentMessages.map(m => ({
+        role: m.role === "user" ? "user" : "model" as const,
+        parts: [{ text: m.text }],
+      }));
+
+      // Add user profile context to the message
+      const contextPrefix = Object.keys(userProfile).length > 0
+        ? `[User profile: Loan=${userProfile.loanType}, Employment=${userProfile.employmentType}, Income=${userProfile.monthlyIncome}, Amount=${userProfile.loanAmount}, CIBIL=${userProfile.cibilScore}, Tenure=${userProfile.tenure}] `
+        : "";
+
+      // Call our RAG-enhanced server API with language context
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: contextPrefix + text.trim(),
+          history,
+          language: selectedLanguage,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        reply = data.reply || getFallbackResponse(text, userProfile);
       } else {
-        await new Promise(r => setTimeout(r, 700));
         reply = getFallbackResponse(text, userProfile);
       }
     } catch {
@@ -1046,7 +1176,7 @@ Please provide a detailed, personalized loan recommendation based on this profil
     }]);
     if (!isOpen) setUnreadCount(n => n + 1);
     setIsLoading(false);
-  }, [isLoading, isOpen, userProfile]);
+  }, [isLoading, isOpen, userProfile, messages, selectedLanguage]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1079,18 +1209,17 @@ Please provide a detailed, personalized loan recommendation based on this profil
   const clearChat = () => {
     chatRef.current = null;
     setUserProfile({});
-    setCurrentStep("loan_type");
+    setCurrentStep("language_select");
+    setSelectedLanguage("English");
     setEstimatorAnswers({});
     setMessages([{
       id: "welcome",
       role: "bot",
-      text: `👋 **Welcome to Speedy Loan Finance Services!**
+      text: `🙏 **Welcome · स्वागत · स्वागत आहे!**
 
-I'm **Redneck Ai**, your personal AI-powered loan advisor. I'll guide you step by step to find the **perfect loan** for your needs.
+I'm **Redneck Ai** — your AI-powered loan advisor for **Speedy Loan Finance Services**, Pune.
 
-We partner with **200+ banks & NBFCs** — HDFC, SBI, ICICI, Bajaj Finance and more — to get you the **best rates with approvals in 72 hours.**
-
-Let me start by asking a few quick questions to understand your requirements better. ⬇️`,
+To serve you better, please select your **preferred language** below. 👇`,
       timestamp: new Date(),
     }]);
   };
@@ -1179,50 +1308,76 @@ Let me start by asking a few quick questions to understand your requirements bet
 
       {/* ── Chat Window ──────────────────────────────────────── */}
       <div
-        className={`fixed z-[9998] flex flex-col rounded-2xl overflow-hidden transition-all duration-300 ${
-          isOpen ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-90 pointer-events-none"
+        className={`fixed z-[9998] flex flex-col overflow-hidden transition-all duration-500 ${
+          isOpen
+            ? "opacity-100 scale-100 pointer-events-auto translate-y-0"
+            : "opacity-0 scale-95 pointer-events-none translate-y-4"
         }`}
         style={{
           right: "80px",
           top: "50%",
-          transform: "translateY(-50%)",
-          width: "min(418px, calc(100vw - 100px))",
-          height: "min(560px, calc(100vh - 80px))",
+          transform: isOpen ? "translateY(-50%) scale(1)" : "translateY(calc(-50% + 16px)) scale(0.97)",
+          width: "min(428px, calc(100vw - 100px))",
+          height: "min(580px, calc(100vh - 80px))",
           maxHeight: "calc(100vh - 40px)",
-          boxShadow: "0 20px 50px rgba(15, 23, 42, 0.25)",
-          border: "1px solid rgba(226, 232, 240, 0.15)",
+          borderRadius: "24px",
+          boxShadow: "0 32px 80px rgba(11, 29, 62, 0.35), 0 0 0 1px rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.12)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          backdropFilter: "blur(24px)",
+          WebkitBackdropFilter: "blur(24px)",
+          background: "rgba(248, 250, 252, 0.97)",
         }}
       >
         {/* ── Header ─────────────────────────────────────────── */}
         <div
-          className="px-4 py-3.5 flex items-center gap-3 flex-shrink-0"
-          style={{ background: "linear-gradient(135deg, #0B1D3E 0%, #1B5BD1 60%, #1e3a8a 100%)" }}
+          className="px-4 py-3.5 flex items-center gap-3 flex-shrink-0 relative overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, #060d1f 0%, #0f2d6b 45%, #1746b0 75%, #0e2752 100%)",
+            borderRadius: "24px 24px 0 0",
+          }}
         >
+          {/* Animated shimmer line */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%)",
+              backgroundSize: "200% 100%",
+              animation: "shimmer 3s infinite linear",
+            }}
+          />
+          <style>{`
+            @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+            @keyframes glow-pulse { 0%,100%{box-shadow:0 0 8px rgba(99,179,237,0.3)} 50%{box-shadow:0 0 18px rgba(99,179,237,0.6)} }
+          `}</style>
+
           {/* Avatar */}
           <div className="relative flex-shrink-0">
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-white flex items-center justify-center border-2 border-white/20 shadow-lg backdrop-blur-sm">
+            <div
+              className="w-11 h-11 rounded-full overflow-hidden bg-white flex items-center justify-center border-2 border-blue-400/40 shadow-xl"
+              style={{ animation: "glow-pulse 2.5s infinite ease-in-out" }}
+            >
               <img src="/images/redneck-avatar.png" alt="Redneck Ai" className="w-full h-full object-contain p-1" />
             </div>
-            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-blue-900" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-[#0f2d6b] shadow-md" style={{ boxShadow: "0 0 8px rgba(52,211,153,0.7)" }} />
           </div>
 
           {/* Name + status */}
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-sm text-white tracking-wide leading-tight">Redneck Ai</p>
-            <p className="text-[10px] text-blue-200/90 font-medium truncate">Speedy Loan Finance Services</p>
+            <p className="font-extrabold text-sm text-white tracking-wide leading-tight">Redneck Ai</p>
+            <p className="text-[10px] text-blue-200/80 font-medium truncate mt-0.5">RAG-Powered Loan Advisor · Speedy Loan Finance</p>
           </div>
 
           {/* Live badge */}
-          <div className="flex items-center gap-1.5 bg-white/10 border border-white/10 px-2.5 py-1 rounded-full flex-shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-[10px] text-green-300 font-bold tracking-widest uppercase">Live</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full flex-shrink-0" style={{ background: "rgba(52,211,153,0.15)", border: "1px solid rgba(52,211,153,0.3)" }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" style={{ boxShadow: "0 0 6px rgba(52,211,153,0.8)" }} />
+            <span className="text-[10px] text-emerald-300 font-bold tracking-widest uppercase">Live</span>
           </div>
 
           {/* Clear button */}
           <button
             onClick={clearChat}
             title="Start over"
-            className="flex-shrink-0 p-1.5 rounded-lg text-blue-200/60 hover:text-white hover:bg-white/10 transition-all"
+            className="flex-shrink-0 p-1.5 rounded-lg text-blue-200/50 hover:text-white hover:bg-white/10 transition-all duration-200"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M7 6V4h10v2M5 6l1 14h12L19 6" />
@@ -1246,12 +1401,19 @@ Let me start by asking a few quick questions to understand your requirements bet
 
         {/* ── Messages Area ─────────────────────────────────── */}
         <div
-          className="flex-1 overflow-y-auto px-4 py-4 space-y-4"
-          style={{ background: "linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)" }}
+          className="flex-1 overflow-y-auto px-4 py-4 space-y-4 chat-messages-area"
+          style={{
+            background: "linear-gradient(180deg, #f0f4ff 0%, #e8eef8 50%, #f1f5fb 100%)",
+            scrollbarWidth: "thin",
+            scrollbarColor: "rgba(99,130,200,0.2) transparent",
+          }}
         >
-          {/* Dark mode override */}
+          {/* Custom scrollbar + dark mode */}
           <style>{`
-            .dark .chat-messages-area { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%) !important; }
+            .chat-messages-area::-webkit-scrollbar { width: 4px; }
+            .chat-messages-area::-webkit-scrollbar-track { background: transparent; }
+            .chat-messages-area::-webkit-scrollbar-thumb { background: rgba(99,130,200,0.25); border-radius: 4px; }
+            .dark .chat-messages-area { background: linear-gradient(180deg, #0d1426 0%, #111827 50%, #0f172a 100%) !important; }
           `}</style>
 
           {messages.map((msg) => (
@@ -1269,16 +1431,19 @@ Let me start by asking a few quick questions to understand your requirements bet
               <div className="flex flex-col gap-0.5" style={{ maxWidth: "84%" }}>
                 {/* Message bubble */}
                 <div
-                  className={`px-4 py-3 text-sm leading-relaxed shadow-md ${
+                  className={`px-4 py-3 text-sm leading-relaxed ${
                     msg.role === "user"
                       ? "rounded-2xl rounded-br-sm text-white"
-                      : "rounded-2xl rounded-bl-sm bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 text-slate-800 dark:text-slate-100"
+                      : "rounded-2xl rounded-bl-sm text-slate-800 dark:text-slate-100"
                   }`}
                   style={msg.role === "user" ? {
-                    background: "linear-gradient(135deg, #1B5BD1 0%, #4f46e5 105%)",
-                    boxShadow: "0 4px 16px rgba(27,91,209,0.25)",
+                    background: "linear-gradient(135deg, #1a4fc7 0%, #3b3dd4 60%, #4f46e5 100%)",
+                    boxShadow: "0 4px 20px rgba(27,79,199,0.35), 0 1px 0 rgba(255,255,255,0.1) inset",
                   } : {
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                    background: "rgba(255,255,255,0.92)",
+                    border: "1px solid rgba(203,213,225,0.7)",
+                    boxShadow: "0 2px 12px rgba(15,30,70,0.08), 0 1px 0 rgba(255,255,255,0.8) inset",
+                    backdropFilter: "blur(8px)",
                   }}
                 >
                   <div className={msg.role === "user" ? "[&_strong]:text-white" : "[&_strong]:text-slate-900 dark:[&_strong]:text-white"}>
@@ -1303,10 +1468,15 @@ Let me start by asking a few quick questions to understand your requirements bet
                 <img src="/images/redneck-avatar.png" alt="Redneck Ai" className="w-full h-full object-contain" />
               </div>
               
+              {/* Language selection step */}
+              {currentStep === "language_select" && (
+                <LanguageSelectCard onSelect={(lang) => handleQuestionnaireSelect(lang, lang)} />
+              )}
+
               {/* Normal questionnaire steps */}
               {currentStepIndex >= 0 && (
                 <QuestionnaireCard
-                  step={currentStep as Exclude<QuestionStep, "complete" | "freetext" | "cibil_estimator_prompt" | "cibil_estimator_q1" | "cibil_estimator_q2" | "cibil_estimator_q3">}
+                  step={currentStep as Exclude<QuestionStep, "language_select" | "complete" | "freetext" | "cibil_estimator_prompt" | "cibil_estimator_q1" | "cibil_estimator_q2" | "cibil_estimator_q3">}
                   employmentType={userProfile.employmentType}
                   onSelect={handleQuestionnaireSelect}
                 />
@@ -1379,12 +1549,19 @@ Let me start by asking a few quick questions to understand your requirements bet
                   { label: "📋 Documents needed", text: "What documents do I need for my loan?" },
                   { label: "📊 EMI calculation", text: "Calculate my EMI" },
                   { label: "🏦 Interest rates", text: "What are the current interest rates?" },
+                  { label: "✅ Check eligibility", text: "Am I eligible for a loan?" },
                   { label: "📞 Contact office", text: "How can I contact Speedy Loan Finance?" },
                 ].map(chip => (
                   <button
                     key={chip.label}
                     onClick={() => sendMessage(chip.text)}
-                    className="text-[11px] font-medium px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 dark:hover:border-blue-500 transition-all hover:scale-105 shadow-sm"
+                    className="text-[11px] font-medium px-3 py-1.5 rounded-full bg-white/80 text-slate-600 dark:text-slate-300 transition-all duration-200 hover:scale-105 active:scale-95"
+                    style={{
+                      border: "1px solid rgba(148,168,220,0.4)",
+                      boxShadow: "0 1px 4px rgba(15,30,70,0.08)",
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 2px 12px rgba(27,79,199,0.2), 0 0 0 1px rgba(79,70,229,0.3)")}
+                    onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 1px 4px rgba(15,30,70,0.08)")}
                   >
                     {chip.label}
                   </button>
@@ -1397,23 +1574,40 @@ Let me start by asking a few quick questions to understand your requirements bet
         </div>
 
         {/* ── Input Area ────────────────────────────────────── */}
-        <div className="px-3 py-3 flex-shrink-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700/80">
+        <div
+          className="px-3 py-3 flex-shrink-0 border-t"
+          style={{
+            background: "rgba(255,255,255,0.95)",
+            borderColor: "rgba(203,213,225,0.5)",
+            backdropFilter: "blur(8px)",
+          }}
+        >
           <form onSubmit={handleSubmit} className="flex items-center gap-2">
             <input
               ref={inputRef}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={isQuestionnaireActive ? "Select option above or type..." : "Ask anything about loans..."}
+              placeholder={isQuestionnaireActive ? "Select option above or type..." : "Ask me anything about loans..."}
               disabled={isLoading}
               maxLength={500}
-              className="flex-1 rounded-full px-4 py-2.5 text-sm outline-none transition-all bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 disabled:opacity-50"
+              className="flex-1 rounded-full px-4 py-2.5 text-sm outline-none transition-all disabled:opacity-50 text-slate-900 placeholder-slate-400"
+              style={{
+                background: "rgba(241,245,255,0.8)",
+                border: "1px solid rgba(148,168,220,0.4)",
+                boxShadow: "0 1px 4px rgba(15,30,70,0.06) inset",
+              }}
+              onFocus={e => (e.currentTarget.style.boxShadow = "0 0 0 3px rgba(79,70,229,0.12), 0 1px 4px rgba(15,30,70,0.06) inset")}
+              onBlur={e => (e.currentTarget.style.boxShadow = "0 1px 4px rgba(15,30,70,0.06) inset")}
             />
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
-              style={{ background: "linear-gradient(135deg, #1B5BD1 0%, #4f46e5 100%)" }}
+              className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                background: "linear-gradient(135deg, #1a4fc7 0%, #4f46e5 100%)",
+                boxShadow: "0 4px 14px rgba(27,79,199,0.4)",
+              }}
             >
               {isLoading ? (
                 <svg className="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
@@ -1431,10 +1625,12 @@ Let me start by asking a few quick questions to understand your requirements bet
           {/* Footer info */}
           <div className="flex items-center justify-between mt-2 px-1">
             <p className="text-[10px] text-slate-400">
-              📞 <a href="tel:+917350005590" className="hover:text-blue-600 underline transition-colors">73500 05590</a>
+              📞 <a href="tel:+917350005590" className="hover:text-blue-600 underline transition-colors font-medium">73500 05590</a>
               {" · "}Mon–Sat 9AM–7PM
             </p>
-            <p className="text-[10px] text-slate-400">AI may be inaccurate</p>
+            <p className="text-[10px] text-slate-400 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 inline-block" />RAG-Powered AI
+            </p>
           </div>
         </div>
       </div>
