@@ -2,8 +2,8 @@
 // const basePath = "/symposium-nextjs";
 const basePath = "";
 const nextConfig = {
-  // Static export for Netlify (no server required — Gemini called client-side)
-  output: "export",
+  // Vercel serves the API routes in src/app/api as serverless functions.
+  // Do not use a static export here: it would omit /api/chat.
   trailingSlash: true,
   basePath: basePath || undefined,
   assetPrefix: basePath || undefined,
