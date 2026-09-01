@@ -26,6 +26,7 @@ export const viewport: Viewport = {
   ],
 };
 import LoanChatbot from "@/components/Chatbot";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // METADATA  – AEO | GEO | LLMO | AISEO | E-E-A-T Expert-Level Configuration
@@ -716,6 +717,7 @@ export default function RootLayout({
         </ThemeProvider>
         </SessionProviderComp>
         </AuthDialogProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
