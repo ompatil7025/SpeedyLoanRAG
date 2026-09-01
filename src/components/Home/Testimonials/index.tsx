@@ -3,7 +3,8 @@ import React from "react";
 import Image from "next/image";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Slider from "react-slick";
+import SliderLib from "react-slick";
+const Slider = SliderLib as unknown as React.ComponentType<import("react-slick").Settings>;
 
 const Testimonials = () => {
 

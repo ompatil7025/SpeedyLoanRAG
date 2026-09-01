@@ -2,7 +2,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import Slider from "react-slick";
+import React from "react";
+import SliderLib from "react-slick";
+const Slider = SliderLib as unknown as React.ComponentType<import("react-slick").Settings>;
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 

@@ -1,21 +1,25 @@
 "use client";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
-import Slider from "react-slick";
+import SliderLib from "react-slick";
+import type { Settings } from "react-slick";
+type SliderType = InstanceType<typeof SliderLib>;
+type SliderProps = Settings & { ref?: React.Ref<SliderType>; className?: string };
+const Slider = SliderLib as unknown as React.ComponentType<SliderProps>;
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 
 const ThumbnailCarousel: React.FC = () => {
     const [activeIndex, setActiveIndex] = useState<number>(0);
-    const mainSliderRef = useRef<Slider | null>(null);
-    const navSliderRef = useRef<Slider | null>(null);
+    const mainSliderRef = useRef<SliderType | null>(null);
+    const navSliderRef = useRef<SliderType | null>(null);
 
     const settingsFor = {
         slidesToShow: 1,
         slidesToScroll: 1,
         arrows: false,
         fade: true,
-        asNavFor: navSliderRef.current as Slider, // Ensure proper typing
+        asNavFor: navSliderRef.current as SliderType, // Ensure proper typing
         responsive: [
             {
                 breakpoint: 1024,
@@ -24,7 +28,7 @@ const ThumbnailCarousel: React.FC = () => {
                     slidesToScroll: 1,
                     arrows: false,
                     fade: true,
-                    asNavFor: navSliderRef.current as Slider,
+                    asNavFor: navSliderRef.current as SliderType,
                 },
             },
             {
@@ -34,7 +38,7 @@ const ThumbnailCarousel: React.FC = () => {
                     slidesToScroll: 1,
                     arrows: false,
                     fade: true,
-                    asNavFor: navSliderRef.current as Slider,
+                    asNavFor: navSliderRef.current as SliderType,
                 },
             },
         ],
@@ -43,7 +47,7 @@ const ThumbnailCarousel: React.FC = () => {
     const settingsNav = {
         slidesToShow: 3,
         slidesToScroll: 1,
-        asNavFor: mainSliderRef.current as Slider, // Ensure proper typing
+        asNavFor: mainSliderRef.current as SliderType, // Ensure proper typing
         dots: true,
         centerMode: true,
         focusOnSelect: true,
