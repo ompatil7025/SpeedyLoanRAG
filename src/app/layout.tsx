@@ -140,9 +140,8 @@ export const metadata: Metadata = {
   category: "Finance & Banking Services",
   classification: "Financial Services – Loan Consultant",
   referrer: "origin-when-cross-origin",
-  verification: {
-    google: "speedyloanfinance-google-verify",
-  },
+  // Google Search Console verification is handled with the domain-level DNS TXT
+  // record at the registrar, so no placeholder meta token is emitted here.
   other: {
     "msapplication-TileColor": "#1B5BD1",
     "application-name": "Speedy Loan Finance Services",
