@@ -299,13 +299,13 @@ const page = () => {
         description="Access one-pagers of various banks and NBFC partners along with their Andromeda DSA codes. This section helps loan advisors quickly find lender details, product information, and processing guidelines in one place."
         breadcrumbLinks={breadcrumbLinks}
       />
+      <VoiceCallSection />
       <WorkSpeakers showTitle={false} />
       <Andro/>
       <ICICI/>
       <LocationSecCode/>
       <Testimonials/>
       <TicketSection/>
-      <VoiceCallSection />
     </>
   );
 };
