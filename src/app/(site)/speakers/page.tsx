@@ -9,6 +9,7 @@ const ICICI = dynamic(() => import("@/components/Home/ICICI"));
 const LocationSecCode = dynamic(() => import("@/components/Home/LocationSecCode"));
 const TicketSection = dynamic(() => import("@/components/Home/TicketSection"));
 const WorkSpeakers = dynamic(() => import("@/components/Home/WorkSpeakers"));
+const VoiceCallSection = dynamic(() => import("@/components/Voice/VoiceCallSection"));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // METADATA – Bankers Panel: E-E-A-T | AEO | LLMO
@@ -304,6 +305,7 @@ const page = () => {
       <LocationSecCode/>
       <Testimonials/>
       <TicketSection/>
+      <VoiceCallSection />
     </>
   );
 };

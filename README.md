@@ -36,6 +36,7 @@ A marketing and lead-generation site for loan products — personal, home, busin
 | `/speakers/` | Bank and NBFC partner directory |
 | `/signin/`, `/signup/` | Auth screens |
 | `/api/chat/` | Gemini RAG endpoint used by the chatbot widget |
+| `/api/voice/*` | AI Voice Advisor — outbound calls, TwiML, conversation turns, speech, status callbacks |
 
 `trailingSlash: true` is enabled, so all public URLs end with `/`. Canonical tags, sitemaps and internal links already follow this rule — keep it that way when adding pages.
 
@@ -50,6 +51,8 @@ src/
     api/chat/route.ts       # RAG chatbot endpoint
   components/               # Layout, Home sections, Blog, Contact, Auth, Chatbot
   lib/                      # ragKnowledge.ts, ragRetriever.ts, supabase.ts, apiMock.ts
+  lib/voice/                # AI Voice Advisor: config, Twilio client, agent brain, TwiML, state
+  components/Voice/         # VoiceCallSection — the call-me-now widget
   utils/                    # config, markdown, AOS
 markdown/Blog/              # article source files
 public/                     # images, logo, robots.txt, sitemaps, llms.txt, manifest.json
@@ -84,7 +87,10 @@ npm run lint     # ESLint
 | `NEXT_PUBLIC_SUPABASE_URL` | public | yes | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | public | yes | Supabase anonymous key |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | public | optional | Supabase publishable key (newer projects) |
-| `NEXT_PUBLIC_GEMINI_API_KEY` | public | yes | Gemini access for `/api/chat` |
+| `NEXT_PUBLIC_GEMINI_API_KEY` | public | yes | Gemini access for `/api/chat` and the voice agent |
+| `GEMINI_MODEL` | server | no | Defaults to `gemini-2.5-flash`; `gemini-1.5-flash` is retired |
+| `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_PHONE_NUMBER` | server | for Voice Advisor | Places the outbound call (section 11) |
+| `ELEVENLABS_API_KEY` / `ELEVENLABS_VOICE_ID` | server | no | Natural Indian female voice for the advisor |
 
 Set the same set under **Vercel → Project → Settings → Environment Variables** for *Production*, *Preview* and *Development*. A missing Gemini key does not break page rendering, but the chatbot will fail with a 500.
 
@@ -164,7 +170,100 @@ Check that `NEXT_PUBLIC_GEMINI_API_KEY` exists for the *Production* environment 
 - **Business details** (phone `+91 73500 05590`, email `loanspeedy@gmail.com`, office address, opening hours) appear in `src/app/layout.tsx` (metadata + JSON-LD), the footer, the contact page and the chatbot system prompt in `src/app/api/chat/route.ts`. Update **all** of them together so the site and its structured data stay consistent.
 - **SEO assets** — `public/robots.txt`, `public/sitemap.xml`, `public/sitemap-blog.xml`, `public/llms.txt` are static files; update `lastmod` dates when publishing new pages.
 
-## 11. Credits and licence
+## 11. AI Voice Advisor (For Banker's page)
+
+The `/speakers/` page ends with a call-me-now widget: a visitor enters their mobile number, picks a language and gives consent; the site places an outbound call and an AI advisor — "Sneha" — discusses their loan requirement in English, Hindi or Marathi, switching automatically to whichever language the caller is using.
+
+### How it works
+
+```
+Browser                Vercel                       Twilio                Caller
+   │ POST /api/voice/outbound                         │                     │
+   ├───────────────────►│  create Call ──────────────►│  dial +91XXXXXXXXXX►│
+   │                    │                             │                     │
+   │                    │◄─ fetch TwiML ─────────────┤  "Namaskar, this is  │
+   │                    │  /api/voice/twiml          │   Sneha…"           │
+   │                    │◄─ recognised speech ───────┤                     │
+   │                    │  Gemini + RAG → reply      │                     │
+   │                    │  TwiML: Say + Gather ─────►│  speaks, listens ──►│
+   │                    │      …until [END_CALL] or [TRANSFER]…            │
+   │                    │◄─ status callback ─────────┤                     │
+   │                    │  /api/voice/status (logs)  │                     │
+```
+
+- **No WebSocket server needed** — every turn is a plain HTTP webhook, so the whole loop runs in serverless functions.
+- **State travels with the call** as a base64 token inside the webhook URLs; the conversation works without any database.
+- **Language detection is per turn** — Devanagari input is classified as Marathi or Hindi using function-word markers, then the recogniser and the voice both switch.
+- **Escalation** — the model can append `[TRANSFER]` (connects the caller to 73500 05590) or `[END_CALL]` (closes the call politely).
+
+### Files
+
+| Path | Purpose |
+|---|---|
+| `src/components/Voice/VoiceCallSection.tsx` | The widget on the For Banker's page |
+| `src/app/api/voice/outbound/route.ts` | Validates number + consent, places the call |
+| `src/app/api/voice/twiml/route.ts` | Greeting and silence re-prompt TwiML |
+| `src/app/api/voice/turn/route.ts` | One conversation turn (Gemini + RAG) |
+| `src/app/api/voice/tts/route.ts` | Signed ElevenLabs audio proxy |
+| `src/app/api/voice/status/route.ts` | Twilio status callback → call log |
+| `src/lib/voice/*` | Config, Twilio client, agent brain, TwiML builders, state, log store |
+
+### Turning it on
+
+The widget degrades gracefully: until Twilio credentials exist, submissions return `voice_not_configured` and the UI falls back to showing the office phone number.
+
+1. **Twilio** — buy (or port) a `+91` caller ID, then set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_PHONE_NUMBER`. Webhook URLs are derived from `NEXT_PUBLIC_SITE_URL`, so nothing needs to be pasted into the Twilio console.
+2. **Voice** — for the natural Pune/Mumbai female accent set `ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID`; `eleven_multilingual_v2` speaks English, Hindi and Marathi in one consistent voice. Without them the agent uses Twilio's built-in `Polly.Aditi`, which is good for English and Hindi but reads Marathi with a Hindi accent.
+3. **Call logs (optional)** — run in the Supabase SQL editor:
+
+```sql
+create table if not exists public.voice_calls (
+  id uuid primary key default gen_random_uuid(),
+  call_sid text unique,
+  to_number text,
+  from_number text,
+  status text,
+  duration_seconds int,
+  language text,
+  turns int,
+  transcript jsonb,
+  source text,
+  created_at timestamptz default now()
+);
+alter table public.voice_calls enable row level security;
+
+-- Allow inserts with the anon key; read via the dashboard or a service-role key.
+create policy "voice_calls_insert" on public.voice_calls
+  for insert with check (true);
+```
+
+Set `SUPABASE_SERVICE_ROLE_KEY` server-side so transcripts can be upserted as the call progresses.
+
+### Compliance (India)
+
+- The form captures **explicit consent** before dialling and discloses that the caller is an AI assistant.
+- Automated outbound calls to Indian numbers fall under TRAI's unsolicited commercial communication rules — only call numbers that requested it (the endpoint enforces this) and keep volumes conservative; do not market to DND-registered numbers.
+- Calls are not recorded.
+
+### Testing without a Twilio account
+
+The TwiML and turn endpoints work with no telephony at all:
+
+```powershell
+# capabilities
+curl.exe -sS http://localhost:3000/api/voice/outbound/
+
+# opening TwiML (greeting + gather)
+curl.exe -sS http://localhost:3000/api/voice/twiml/
+
+# one simulated turn: speech in, TwiML with the AI reply out
+$tok = node -e "console.log(Buffer.from(JSON.stringify({lang:'mr-IN',turn:0,stage:0,history:[]})).toString('base64url'))"
+$body = 'SpeechResult=' + [System.Uri]::EscapeDataString('मला दहा लाखांचे कर्ज हवे आहे')
+$f = "$env:TEMP\t.txt"; [IO.File]::WriteAllText($f, $body, [Text.Encoding]::ASCII)
+curl.exe -sS -X POST "http://localhost:3000/api/voice/turn/?s=$tok" -H 'Content-Type: application/x-www-form-urlencoded' --data-binary "@$f"
+```
+
+## 12. Credits and licence
 
 Design and base template: [Symposium — Next.js Templates](https://nextjs-templates.com/), distributed via [ThemeWagon](https://themewagon.com/themes/symposium-nextjs/), licensed under MIT. Site content, branding, structured data and the RAG assistant are custom to Speedy Loan Finance Services and developed by Om Patil.
 
