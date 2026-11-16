@@ -295,8 +295,8 @@ const page = () => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(partnershipFaqSchema) }}
       />
       <HeroSub
-        title="OnePagers of Banks & Andro Codes"
-        description="Access one-pagers of various banks and NBFC partners along with their Andromeda DSA codes. This section helps loan advisors quickly find lender details, product information, and processing guidelines in one place."
+        title="Bank One-Pagers & Andromeda DSA Codes"
+        description="One-pagers, Andromeda DSA codes and location codes for every partner bank and NBFC — HDFC, ICICI, SBI, Axis, Kotak, Bajaj and more. Filter by lender or city, or speak to our AI advisor in Marathi, Hindi or English."
         breadcrumbLinks={breadcrumbLinks}
       />
       <VoiceCallSection />
