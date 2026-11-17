@@ -1,10 +1,11 @@
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // /api/voice/twiml
-// Entry TwiML for a call: greeting (stage 0) or a silence re-prompt (stage 1+).
-// ─────────────────────────────────────────────────────────────────────────────
+// Entry TwiML for a call: ask for the first name (stage 0), or a silence
+// re-prompt (stage 1+).
+// -----------------------------------------------------------------------------
 
 import { NextRequest, NextResponse } from "next/server";
-import { greeting, noInputPrompt } from "@/lib/voice/agent";
+import { askNamePrompt, noInputPrompt } from "@/lib/voice/agent";
 import { voiceConfig } from "@/lib/voice/config";
 import { decodeState, encodeState, newCallState } from "@/lib/voice/state";
 import { gather, hangup, say, twiml } from "@/lib/voice/twiml";
@@ -15,10 +16,7 @@ export const dynamic = "force-dynamic";
 function xml(body: string) {
   return new NextResponse(body, {
     status: 200,
-    headers: {
-      "Content-Type": "text/xml; charset=utf-8",
-      "Cache-Control": "no-store",
-    },
+    headers: { "Content-Type": "text/xml; charset=utf-8", "Cache-Control": "no-store" },
   });
 }
 
@@ -28,14 +26,10 @@ async function handle(req: NextRequest) {
 
   const actionUrl = `${voiceConfig.siteUrl}/api/voice/turn/?s=${encodeState(state)}`;
 
+  // Stage 0: capture the first name before anything else.
   if (state.stage === 0) {
-    const line = greeting(state.lang, state.name);
-    // Seed the history with the greeting so the model does not introduce
-    // itself again on the caller's first reply.
-    const seeded = {
-      ...state,
-      history: [{ role: "model" as const, text: line }],
-    };
+    const line = askNamePrompt(state.lang);
+    const seeded = { ...state, history: [{ role: "model" as const, text: line }] };
     const seededAction = `${voiceConfig.siteUrl}/api/voice/turn/?s=${encodeState(seeded)}`;
     return xml(twiml(gather({ actionUrl: seededAction, lang: state.lang, prompt: say(line, state.lang) })));
   }

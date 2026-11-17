@@ -1,7 +1,7 @@
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Voice agent configuration
 // Server-only module. Never import this in a client component.
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 export type VoiceLanguage = "en-IN" | "hi-IN" | "mr-IN";
 
@@ -22,6 +22,14 @@ export const voiceConfig = {
     accountSid: process.env.TWILIO_ACCOUNT_SID ?? "",
     authToken: process.env.TWILIO_AUTH_TOKEN ?? "",
     fromNumber: process.env.TWILIO_PHONE_NUMBER ?? "",
+  },
+
+  // WhatsApp delivery of the lead summary.
+  whatsapp: {
+    // Twilio WhatsApp sender. The sandbox default works on trial accounts once
+    // the receiving number has joined the sandbox.
+    from: process.env.TWILIO_WHATSAPP_FROM || "whatsapp:+14155238886",
+    leadNumber: process.env.VOICE_LEAD_WHATSAPP || "+917350005590",
   },
 
   elevenLabs: {
@@ -55,6 +63,7 @@ export function voiceCapabilities() {
   return {
     configured: telephonyConfigured(),
     premiumVoice: premiumVoiceConfigured(),
+    whatsapp: Boolean(voiceConfig.twilio.accountSid && voiceConfig.twilio.authToken),
     languages: SUPPORTED_LANGUAGES,
   };
 }

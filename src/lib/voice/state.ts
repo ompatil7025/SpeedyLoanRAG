@@ -1,10 +1,10 @@
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Call state
 //
 // Vercel functions are stateless, so the conversation state travels with the
 // call as a compact base64url token inside the Twilio webhook URLs. History is
 // trimmed aggressively to keep the URL well under Twilio's limits.
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 import type { VoiceLanguage } from "./config";
 
@@ -16,13 +16,18 @@ export interface AgentTurn {
 export interface CallState {
   lang: VoiceLanguage;
   turn: number;
-  /** 0 = greeting sent, 1 = first nudge after silence, 2 = goodbye sent. */
+  /** 0 = name capture, 1 = intro sent, 2+ = qualification. */
   stage: number;
   history: AgentTurn[];
+  /** Name collected during the call. */
+  callerName?: string;
+  /** Name typed into the web form, used as a fallback. */
   name?: string;
+  /** True once the lead has been pushed to WhatsApp. */
+  leadSent?: boolean;
 }
 
-const MAX_TURNS = 6; // user+model pairs kept in state
+const MAX_TURNS = 7;
 const MAX_TEXT = 240;
 
 export function newCallState(lang: VoiceLanguage, name?: string): CallState {
@@ -44,7 +49,7 @@ export function decodeState(token: string | null): CallState | null {
   if (!token) return null;
   try {
     const json = Buffer.from(token, "base64url").toString("utf8");
-    if (json.length > 8000) return null;
+    if (json.length > 9000) return null;
     const parsed = JSON.parse(json) as Partial<CallState>;
     if (!parsed || typeof parsed !== "object") return null;
 
@@ -59,13 +64,13 @@ export function decodeState(token: string | null): CallState | null {
         ? parsed.history
             .filter(
               (t): t is AgentTurn =>
-                !!t &&
-                (t.role === "user" || t.role === "model") &&
-                typeof t.text === "string"
+                !!t && (t.role === "user" || t.role === "model") && typeof t.text === "string"
             )
             .slice(-MAX_TURNS * 2)
         : [],
+      callerName: typeof parsed.callerName === "string" ? parsed.callerName.slice(0, 40) : undefined,
       name: typeof parsed.name === "string" ? parsed.name.slice(0, 60) : undefined,
+      leadSent: parsed.leadSent === true,
     };
   } catch {
     return null;

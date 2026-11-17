@@ -208,6 +208,15 @@ Browser                Vercel                       Twilio                Caller
 | `src/app/api/voice/status/route.ts` | Twilio status callback → call log |
 | `src/lib/voice/*` | Config, Twilio client, agent brain, TwiML builders, state, log store |
 
+### The call flow
+
+1. **Name** — "Namaskar! I am calling from Speedy Loan Finance Services. May I know your first name, please?"
+2. **Time-aware greeting + introduction** — "Good evening Rahul ji, I am Sneha calling from Speedy Loan Finance Services. Our office is at Mayur Trade Center, near Chinchwad Railway Station, Pune — you are welcome to verify it anytime. Sir, do you need any type of loan?"
+   (morning / afternoon / evening / night is computed in `Asia/Kolkata`, in English, Hindi or Marathi)
+3. **Qualification** — one question per turn: loan type → amount → monthly income → salaried or self-employed → city → CIBIL, only if offered.
+4. **Lead push to WhatsApp** — once the loan type and amount are known, the agent confirms the requirement, says the details are going to the Speedy Loan team on WhatsApp, and appends `[SEND_LEAD]`. The server then posts a formatted brief to `+91 73500 05590`.
+5. **Close** — `[END_CALL]` for a polite hangup, or `[TRANSFER]` to a human advisor on 73500 05590.
+
 ### Turning it on
 
 The widget degrades gracefully: until Twilio credentials exist, submissions return `voice_not_configured` and the UI falls back to showing the office phone number.
@@ -236,6 +245,8 @@ alter table public.voice_calls enable row level security;
 create policy "voice_calls_insert" on public.voice_calls
   for insert with check (true);
 ```
+
+3. **WhatsApp lead delivery** — set `TWILIO_WHATSAPP_FROM` (defaults to the Twilio sandbox `whatsapp:+14155238886`) and `VOICE_LEAD_WHATSAPP` (defaults to `+917350005590`). On a trial account the receiving phone must first join the sandbox: from that WhatsApp number send `join <your-sandbox-code>` to +1 415 523 8886. Without it Twilio answers `572002` and the lead is logged but never delivered.
 
 Set `SUPABASE_SERVICE_ROLE_KEY` server-side so transcripts can be upserted as the call progresses.
 
