@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import LeadsPanel from "./LeadsPanel";
 
 type Language = "en-IN" | "hi-IN" | "mr-IN";
 
@@ -265,6 +266,8 @@ const VoiceCallSection: React.FC = () => {
             </div>
           </div>
         </div>
+
+        <LeadsPanel />
       </div>
     </section>
   );

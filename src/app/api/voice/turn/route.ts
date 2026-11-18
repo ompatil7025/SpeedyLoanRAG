@@ -3,8 +3,8 @@
 //
 // Turn 1 captures the caller's first name and delivers the scripted intro
 // (time-of-day greeting, company, verifiable Chinchwad office, polite loan ask).
-// Later turns are Gemini-driven qualification. When the caller is interested the
-// collected details are pushed to WhatsApp.
+// Later turns run the bank-style qualification. Once the profile is complete the
+// lead is analysed, stored for the on-page panel, and pushed to WhatsApp.
 // -----------------------------------------------------------------------------
 
 import { NextRequest, NextResponse } from "next/server";
@@ -14,9 +14,10 @@ import {
   generateReply,
   introScript,
   noInputPrompt,
-  summariseLead,
 } from "@/lib/voice/agent";
 import { LANGUAGE_LABELS, voiceConfig } from "@/lib/voice/config";
+import { analyseLead, formatLeadMessage } from "@/lib/voice/lead";
+import { saveLead } from "@/lib/voice/leadStore";
 import { decodeState, encodeState, newCallState, type AgentTurn } from "@/lib/voice/state";
 import { logVoiceCall } from "@/lib/voice/store";
 import { sendLeadToWhatsApp } from "@/lib/voice/twilio";
@@ -31,26 +32,6 @@ function xml(body: string) {
     status: 200,
     headers: { "Content-Type": "text/xml; charset=utf-8", "Cache-Control": "no-store" },
   });
-}
-
-function leadMessage(params: {
-  callerName: string;
-  phone: string;
-  language: string;
-  summary: string;
-}): string {
-  const lines = [
-    "*New loan enquiry — AI call*",
-    "",
-    `Name: ${params.callerName || "not shared"}`,
-    `Phone: ${params.phone || "not shared"}`,
-    `Language: ${params.language}`,
-    "",
-    params.summary || "Customer details captured on the call.",
-    "",
-    "_Speedy Loan Finance Services • AI voice advisor_",
-  ];
-  return lines.join("\n");
 }
 
 export async function POST(req: NextRequest) {
@@ -72,7 +53,7 @@ export async function POST(req: NextRequest) {
   // -- Silence: re-prompt twice, then close the call politely -----------------
   if (!speech) {
     const nextStage = state.stage + 1;
-    if (nextStage > 2) {
+    if (nextStage > 4) {
       return xml(twiml(say(noInputPrompt(state.lang, 2), state.lang), hangup()));
     }
     const next = { ...state, stage: nextStage };
@@ -87,18 +68,11 @@ export async function POST(req: NextRequest) {
 
     const history: AgentTurn[] = [
       ...state.history,
-      { role: "user", text: speech.slice(0, 240) },
+      { role: "user", text: speech.slice(0, 200) },
       { role: "model", text: line },
     ];
 
-    const next = {
-      ...state,
-      lang,
-      stage: 1,
-      turn: state.turn + 1,
-      callerName,
-      history,
-    };
+    const next = { ...state, lang, stage: 1, turn: state.turn + 1, callerName, history };
 
     await logVoiceCall({
       call_sid: callSid || `turn-${Date.now()}`,
@@ -110,13 +84,11 @@ export async function POST(req: NextRequest) {
     });
 
     const actionUrl = `${voiceConfig.siteUrl}/api/voice/turn/?s=${encodeState(next)}`;
-    return xml(
-      twiml(gather({ actionUrl, lang, prompt: spoken(line, lang, speechUrl(line, lang)) }))
-    );
+    return xml(twiml(gather({ actionUrl, lang, prompt: spoken(line, lang, speechUrl(line, lang)) })));
   }
 
   // -- Qualification turns ----------------------------------------------------
-  const history: AgentTurn[] = [...state.history, { role: "user", text: speech.slice(0, 240) }];
+  const history: AgentTurn[] = [...state.history, { role: "user", text: speech.slice(0, 200) }];
 
   const reply = await generateReply({
     utterance: speech,
@@ -134,26 +106,42 @@ export async function POST(req: NextRequest) {
     lang: reply.language,
     turn: state.turn + 1,
     stage: 2,
-    history: [...history, modelTurn].slice(-14),
+    history: [...history, modelTurn].slice(-18),
     leadSent: state.leadSent,
   };
 
-  // -- Push the lead to WhatsApp once the customer shows interest -------------
+  // -- Analyse the call, store the lead, push it to WhatsApp -------------------
   if (reply.sendLead && !state.leadSent) {
     const callerName = state.callerName || state.name || "";
-    const summary = await summariseLead(next.history, callerName);
-    const result = await sendLeadToWhatsApp(
-      leadMessage({
-        callerName,
-        phone: from,
+
+    try {
+      const analysis = await analyseLead(next.history, callerName);
+
+      await saveLead({
+        ...analysis,
+        id: callSid || `lead-${Date.now()}`,
+        callSid: callSid || `lead-${Date.now()}`,
+        name: callerName,
+        phone: from || state.phone || "",
         language: LANGUAGE_LABELS[reply.language],
-        summary,
-      })
-    );
-    next.leadSent = true;
-    if (!result.ok) {
-      console.warn("[voice] lead not delivered:", result.detail);
+        createdAt: new Date().toISOString(),
+        transcript: next.history.map((turn) => ({ role: turn.role, text: turn.text })),
+      });
+
+      const result = await sendLeadToWhatsApp(
+        formatLeadMessage({
+          name: callerName,
+          phone: from || state.phone || "",
+          language: LANGUAGE_LABELS[reply.language],
+          analysis,
+        })
+      );
+      if (!result.ok) console.warn("[voice] lead not delivered:", result.detail);
+    } catch (error) {
+      console.warn("[voice] lead pipeline failed:", error instanceof Error ? error.message : error);
     }
+
+    next.leadSent = true;
   }
 
   await logVoiceCall({

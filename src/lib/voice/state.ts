@@ -23,15 +23,17 @@ export interface CallState {
   callerName?: string;
   /** Name typed into the web form, used as a fallback. */
   name?: string;
+  /** Number that was dialled, so leads keep the phone even if Twilio omits From. */
+  phone?: string;
   /** True once the lead has been pushed to WhatsApp. */
   leadSent?: boolean;
 }
 
-const MAX_TURNS = 7;
-const MAX_TEXT = 240;
+const MAX_TURNS = 9;
+const MAX_TEXT = 200;
 
-export function newCallState(lang: VoiceLanguage, name?: string): CallState {
-  return { lang, turn: 0, stage: 0, history: [], name };
+export function newCallState(lang: VoiceLanguage, name?: string, phone?: string): CallState {
+  return { lang, turn: 0, stage: 0, history: [], name, phone };
 }
 
 export function encodeState(state: CallState): string {
@@ -70,6 +72,7 @@ export function decodeState(token: string | null): CallState | null {
         : [],
       callerName: typeof parsed.callerName === "string" ? parsed.callerName.slice(0, 40) : undefined,
       name: typeof parsed.name === "string" ? parsed.name.slice(0, 60) : undefined,
+      phone: typeof parsed.phone === "string" ? parsed.phone.slice(0, 20) : undefined,
       leadSent: parsed.leadSent === true,
     };
   } catch {

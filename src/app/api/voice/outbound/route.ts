@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
   }
 
   const name = (payload.name ?? "").trim().slice(0, 60) || undefined;
-  const state = encodeState(newCallState(language, name));
+  const state = encodeState(newCallState(language, name, to));
 
   const twimlUrl = `${voiceConfig.siteUrl}/api/voice/twiml/?s=${state}`;
   const statusUrl = `${voiceConfig.siteUrl}/api/voice/status/?s=${state}`;
