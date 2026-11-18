@@ -107,6 +107,7 @@ const handleEmailClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
           >
             <div className="bg-ElectricAqua relative rounded-tl-166 rounded-br-166 w-[65%] sm:w-[45%] lg:w-full mx-auto lg:mx-0">
               <Image
+                priority
                 src="/images/hero/john.png"
                 alt="hero"
                 width={0}
@@ -120,6 +121,7 @@ const handleEmailClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
 
             <div className="bg-primary relative rounded-tr-166 rounded-bl-166 w-full mt-32 hidden sm:block">
               <Image
+                priority
                 src="/images/hero/jijuph.png"
                 alt="hero"
                 width={0}

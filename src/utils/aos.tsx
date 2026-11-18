@@ -6,10 +6,12 @@ import 'aos/dist/aos.css';
 const Aoscompo = ({children}:any) => {
     useEffect(() => {
         AOS.init({
-            duration: 400,             // Crisp animation duration (400ms instead of 800ms)
-            once: true,                // Trigger animations only once to prevent scrolling lag
-            offset: 50,                // Trigger animations earlier (50px offset instead of 120px)
-            easing: 'ease-out-cubic',  // Faster initial acceleration for perceived speed
+            duration: 300,              // Short, so nothing feels like it is still loading
+            once: true,                 // Never re-animate when scrolling back up
+            offset: 0,                  // Start as soon as the element enters the viewport
+            easing: 'ease-out-cubic',
+            // Fade-ins are what make content feel slow on phones: render instantly there.
+            disable: 'phone',
         })
     }, [])
   return (

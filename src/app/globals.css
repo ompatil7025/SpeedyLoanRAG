@@ -120,8 +120,8 @@ body {
 
 /* Advanced scroll-rendering optimizations */
 .content-visibility-auto {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 600px; /* placeholder height to avoid scrollbar jumping */
+  content-visibility: visible;
+  contain-intrinsic-size: none; /* was deferred rendering; sections now paint immediately */
 }
 
 /* Keep in-page anchors clear of the fixed header */
