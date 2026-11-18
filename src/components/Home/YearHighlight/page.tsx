@@ -51,7 +51,7 @@ const Highlight = () => {
                 <div className="container">
                     <div className="grid md:grid-cols-12 grid-cols-1 items-center max-w-[125rem] mx-auto">
                         <div
-                            className="col-span-5 py-0 px-7"
+                            className="col-span-1 md:col-span-5 py-0 px-7"
                             data-aos="fade-right"
                             data-aos-delay="200"
                             data-aos-duration="1000"
@@ -84,7 +84,7 @@ const Highlight = () => {
                             </div>
                         </div>
                         <div
-                            className="col-span-7 year_slider px-7"
+                            className="col-span-1 md:col-span-7 year_slider px-7"
                             data-aos="fade-left"
                             data-aos-delay="200"
                             data-aos-duration="1000"

@@ -76,7 +76,7 @@ export default async function BlogHead({ params }: Props) {
             <section className="pt-44">
                 <div className="container mx-auto max-w-[1200px]">
                     <div className="grid md:grid-cols-12 grid-cols-1 items-center">
-                        <div className="col-span-8">
+                        <div className="col-span-1 md:col-span-8">
                             <div className="flex flex-col sm:flex-row">
                                 <span className="text-base text-SlateBlueText pr-7 border-r border-solid border-white w-fit">
                                     
@@ -87,7 +87,7 @@ export default async function BlogHead({ params }: Props) {
                                 {post.title}
                             </h2>
                         </div>
-                        <div className="flex  gap-6 col-span-4 pt-4 md:pt-0">
+                        <div className="flex gap-6 col-span-1 md:col-span-4 pt-4 md:pt-0">
                             <Image
                                 src={post.authorImage}
                                 alt="image"

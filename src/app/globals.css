@@ -128,3 +128,8 @@ body {
 html {
   scroll-padding-top: 6rem;
 }
+
+/* Responsive safety net: never let media or long tokens force a horizontal scroll */
+img, svg, video, canvas { max-width: 100%; }
+p, li, dd, td, a, span { overflow-wrap: break-word; }
+table { width: 100%; }

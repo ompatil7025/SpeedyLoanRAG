@@ -52,7 +52,7 @@ const Testimonials = () => {
                         <div>
                             <div className="grid md:grid-cols-12 grid-cols-1 items-center gap-6">
 
-                                <div className="col-span-4 bg-LightSkyBlue sm:rounded-br-214 rounded-br-182 sm:rounded-tl-214 rounded-tl-182 relative lg:inline-block hidden">
+                                <div className="col-span-1 md:col-span-4 bg-LightSkyBlue sm:rounded-br-214 rounded-br-182 sm:rounded-tl-214 rounded-tl-182 relative lg:inline-block hidden">
                                     <Image
                                         src="/images/hero/john.png"
                                         alt="testimonials"
@@ -65,7 +65,7 @@ const Testimonials = () => {
                                     />
                                 </div>
 
-                                <div className="col-span-8 md:ml-20 ml-0">
+                                <div className="col-span-1 md:col-span-8 md:ml-20 ml-0">
 
                                     <h2 className="max-w-72 text-2xl font-semibold">
                                         What Our Customer Says
@@ -114,7 +114,7 @@ const Testimonials = () => {
                         <div>
                             <div className="grid md:grid-cols-12 grid-cols-1 items-center gap-6">
 
-                                <div className="col-span-4 bg-LightSkyBlue lg:inline-block hidden">
+                                <div className="col-span-1 md:col-span-4 bg-LightSkyBlue lg:inline-block hidden">
                                     <Image
                                         src="/images/hero/john.png"
                                         alt="testimonials"
@@ -125,7 +125,7 @@ const Testimonials = () => {
                                     />
                                 </div>
 
-                                <div className="col-span-8 md:ml-20 ml-0">
+                                <div className="col-span-1 md:col-span-8 md:ml-20 ml-0">
 
                                     <h2 className="text-2xl font-semibold">
                                         What Our Customer Says
@@ -164,7 +164,7 @@ const Testimonials = () => {
                         <div>
                             <div className="grid md:grid-cols-12 grid-cols-1 items-center gap-6">
 
-                                <div className="col-span-4 bg-LightSkyBlue lg:inline-block hidden">
+                                <div className="col-span-1 md:col-span-4 bg-LightSkyBlue lg:inline-block hidden">
                                     <Image
                                         src="/images/hero/john.png"
                                         alt="testimonials"
@@ -175,7 +175,7 @@ const Testimonials = () => {
                                     />
                                 </div>
 
-                                <div className="col-span-8 md:ml-20 ml-0">
+                                <div className="col-span-1 md:col-span-8 md:ml-20 ml-0">
 
                                     <h2 className="text-2xl font-semibold">
                                         What Our Customer Says
@@ -214,7 +214,7 @@ const Testimonials = () => {
                         <div>
                             <div className="grid md:grid-cols-12 grid-cols-1 items-center gap-6">
 
-                                <div className="col-span-4 bg-LightSkyBlue lg:inline-block hidden">
+                                <div className="col-span-1 md:col-span-4 bg-LightSkyBlue lg:inline-block hidden">
                                     <Image
                                         src="/images/hero/john.png"
                                         alt="testimonials"
@@ -225,7 +225,7 @@ const Testimonials = () => {
                                     />
                                 </div>
 
-                                <div className="col-span-8 md:ml-20 ml-0">
+                                <div className="col-span-1 md:col-span-8 md:ml-20 ml-0">
 
                                     <h2 className="text-2xl font-semibold">
                                         What Our Customer Says

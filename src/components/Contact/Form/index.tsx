@@ -7,7 +7,7 @@ const ContactForm = () => {
             <section className="dark:bg-darkmode lg:pb-24 pb-16 pt-0">
                 <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md">
                     <div className="grid md:grid-cols-12 grid-cols-1 gap-8">
-                        <div className="col-span-6">
+                        <div className="col-span-1 md:col-span-6">
                             <h2 className="max-w-72 text-[40px] leading-[3.4rem] font-bold mb-9 text-secondary">Online Mail Enquiry</h2>
                             <form className="flex flex-wrap w-full m-auto justify-between">
                                 <div className="sm:flex gap-3 w-full">
@@ -86,7 +86,7 @@ const ContactForm = () => {
                                 </div>
                             </form>
                         </div>
-                        <div className="col-span-6">
+                        <div className="col-span-1 md:col-span-6">
                             <Image
                                 src="/images/contact-page/contact.jpg"
                                 alt="Contact"

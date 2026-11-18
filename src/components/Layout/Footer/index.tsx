@@ -192,7 +192,7 @@ useEffect(() => {
         </div>
 
         <div className="grid md:grid-cols-12 grid-cols-1 items-center py-8">
-          <div className="col-span-5">
+          <div className="col-span-1 md:col-span-5">
             <p className="text-base font-normal text-PaleCerulean">
               © All rights reserved , speedyloanfinance.com
             </p>
@@ -222,12 +222,12 @@ useEffect(() => {
             </p>
           </div>
 
-          <div className="col-span-7 grid md:grid-cols-12 grid-cols-1 items-center gap-6">
-            <p className="text-xl text-PaleCerulean font-normal col-span-4">
+          <div className="col-span-1 md:col-span-7 grid md:grid-cols-12 grid-cols-1 items-center gap-6">
+            <p className="text-xl text-PaleCerulean font-normal col-span-1 md:col-span-4">
               For Any Enquiry -
             </p>
 
-            <div className="w-full col-span-8">
+            <div className="w-full col-span-1 md:col-span-8">
               <form className="newsletter-form bg-white dark:bg-transparent flex rounded-md justify-end overflow-hidden rounded-tl-lg rounded-bl-lg">
                 <input
                   type="email"
