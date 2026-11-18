@@ -27,7 +27,7 @@ const Header: React.FC = () => {
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = () => {
-    setSticky(window.scrollY >= 80);
+    setSticky(window.scrollY > 8);
   };
 
   const handleClickOutside = (event: MouseEvent) => {
@@ -75,23 +75,27 @@ const Header: React.FC = () => {
     <>
     <div className="relative"></div>
     <header
-      className={`fixed h-20 top-0 py-1 z-50 w-full bg-transparent transition-all  ${
-        sticky ? "shadow-lg dark:shadow-darkmd bg-white dark:bg-secondary" : "shadow-none"
+      className={`fixed left-0 top-0 z-50 h-20 w-full border-b transition-all duration-300 ${
+        sticky
+          ? "border-LightSkyBlue/70 bg-white/95 shadow-[0_2px_18px_rgba(16,44,70,0.08)] backdrop-blur-md dark:border-dark_border dark:bg-secondary/95"
+          : "border-transparent bg-transparent"
       }`}
     >
       <div className="container">
-        <div className="flex h-20 items-center justify-between">
-          <Logo />
-          <ul className="hidden lg:flex flex-grow items-center justify-center space-x-6">
+        <div className="flex h-20 items-center justify-between gap-4">
+          <div className="shrink-0">
+            <Logo />
+          </div>
+          <ul className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 lg:flex xl:gap-1">
             {headerData.map((item, index) => (
               <HeaderLink key={index} item={item} />
             ))}
           </ul>
-          <div className="flex items-center space-x-4">
+          <div className="flex shrink-0 items-center gap-2 xl:gap-3">
             <button
               aria-label="Toggle theme"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="flex h-8 w-8 items-center justify-center text-body-color duration-300 dark:text-white"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-body-color transition-colors duration-300 hover:bg-primary/5 dark:text-white"
             >
               <svg
                 viewBox="0 0 16 16"
@@ -115,22 +119,22 @@ const Header: React.FC = () => {
             </button>
             <Link
               href="https://investor.sebi.gov.in/calc/emi.html"
-              className="hidden lg:block btn_outline btn-2 hover-outline-slide-down rounded-lg"
+              className="hidden whitespace-nowrap rounded-lg btn_outline btn-2 hover-outline-slide-down xl:block"
               onClick={() => {
                 setIsSignInOpen(true);
               }}
             >
-              <span className="!py-2 !px-4">EMI Calculator</span>
+              <span className="!px-3 !py-2 text-[13px] xl:!px-4 xl:text-sm">EMI Calculator</span>
             </Link>
 
             <Link
               href="https://www.equifax.co.in/"
-              className="hidden lg:block btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden"
+              className="hidden overflow-hidden whitespace-nowrap rounded-lg btn btn-1 hover-filled-slide-down lg:block"
               onClick={() => {
                 setIsSignUpOpen(true);
               }}
             >
-              <span className="!py-2 !px-4">Check Credit Score</span>
+              <span className="!px-3 !py-2 text-[13px] xl:!px-4 xl:text-sm">Check Credit Score</span>
             </Link>
             
             
@@ -234,4 +238,3 @@ const Header: React.FC = () => {
 };
 
 export default Header;
-
