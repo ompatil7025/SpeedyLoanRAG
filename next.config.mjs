@@ -1,10 +1,16 @@
 /** @type {import('next').NextConfig} */
 // const basePath = "/symposium-nextjs";
 const basePath = "";
+
+// Keep development and production build output in separate folders.
+// Sharing .next between `next build`/`next start` and `next dev` corrupts the
+// manifests and produces "Cannot find module './583.js'" errors.
+const distDir = process.env.NODE_ENV === "development" ? ".next-dev" : ".next";
 const nextConfig = {
   // Vercel serves the API routes in src/app/api as serverless functions.
   // Do not use a static export here: it would omit /api/chat.
   trailingSlash: true,
+  distDir,
   basePath: basePath || undefined,
   assetPrefix: basePath || undefined,
   poweredByHeader: false,
