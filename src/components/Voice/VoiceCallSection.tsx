@@ -66,11 +66,11 @@ const VoiceCallSection: React.FC = () => {
         signal: controller.signal,
       });
 
-      const data = (await res.json()) as { error?: string; ok?: boolean };
+      const data = (await res.json()) as { error?: string; ok?: boolean; message?: string };
 
       if (!res.ok || !data.ok) {
         const key = data.error ?? "call_failed";
-        setMessage(ERROR_TEXT[key] ?? ERROR_TEXT.call_failed);
+        setMessage(data.message ?? ERROR_TEXT[key] ?? ERROR_TEXT.call_failed);
         setStatus("error");
         if (key === "voice_not_configured") setConfigured(false);
         return;

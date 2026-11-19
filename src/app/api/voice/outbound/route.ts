@@ -122,9 +122,13 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     const message = error instanceof Error ? error.message : "call_failed";
     console.error("[voice] outbound failed:", message);
-    return NextResponse.json(
-      { error: "call_failed", message: "Twilio rejected the call. Check the caller ID and that this number is verified on the trial account." },
-      { status: 502 }
-    );
+
+    // Trial accounts can only dial numbers verified in the Twilio console.
+    const trialLimit = /573002|21210|21608|verified recipient|not a verified/i.test(message);
+    const friendly = trialLimit
+      ? "This number is not verified on our Twilio trial account. Add it under Twilio → Phone Numbers → Verified Caller IDs, or upgrade the account to call any number."
+      : "Twilio rejected the call. Please try again, or call 73500 05590.";
+
+    return NextResponse.json({ error: "call_failed", message: friendly }, { status: 502 });
   }
 }
