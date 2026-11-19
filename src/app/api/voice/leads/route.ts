@@ -16,7 +16,10 @@ export async function GET(req: NextRequest) {
   const adminToken = process.env.VOICE_ADMIN_TOKEN || "";
   const provided =
     req.headers.get("x-voice-admin") ?? req.nextUrl.searchParams.get("token") ?? "";
-  const authorised = !adminToken || provided === adminToken;
+  // Fail closed: without a configured token nothing is ever revealed in full.
+  // Previously an unset VOICE_ADMIN_TOKEN meant "authorised", which published
+  // customer names and phone numbers on a public page.
+  const authorised = Boolean(adminToken) && provided === adminToken;
 
   const leads = await listLeads(25);
 
