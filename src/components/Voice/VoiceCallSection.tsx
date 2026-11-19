@@ -30,6 +30,8 @@ const VoiceCallSection: React.FC = () => {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
   const [configured, setConfigured] = useState<boolean | null>(null);
+  const [sending, setSending] = useState<"sms" | "whatsapp" | null>(null);
+  const [notice, setNotice] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,6 +79,47 @@ const VoiceCallSection: React.FC = () => {
     } catch {
       setMessage(ERROR_TEXT.call_failed);
       setStatus("error");
+    }
+  };
+
+  const sendDetails = async (channel: "sms" | "whatsapp") => {
+    if (sending) return;
+    setSending(channel);
+    setNotice(null);
+
+    try {
+      const res = await fetch("/api/voice/notify/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, name, channel, consent }),
+      });
+      const data = (await res.json()) as { ok?: boolean; error?: string; message?: string };
+
+      if (!res.ok || !data.ok) {
+        setNotice({
+          kind: "err",
+          text:
+            data.message ??
+            (data.error === "rate_limited"
+              ? "Too many messages to this number. Please try again later."
+              : data.error === "messaging_not_configured"
+                ? "Messaging is not active yet. Please call 73500 05590."
+                : "Could not send the message. Please call 73500 05590."),
+        });
+        return;
+      }
+
+      setNotice({
+        kind: "ok",
+        text:
+          channel === "whatsapp"
+            ? "WhatsApp message sent. Check your chats."
+            : "SMS sent. It usually arrives within a minute.",
+      });
+    } catch {
+      setNotice({ kind: "err", text: "Could not send the message. Please call 73500 05590." });
+    } finally {
+      setSending(null);
     }
   };
 
@@ -234,6 +277,44 @@ const VoiceCallSection: React.FC = () => {
                 >
                   {busy ? "Placing your call…" : "Call me now"}
                 </button>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => sendDetails("whatsapp")}
+                    disabled={!consent || phone.length !== 10 || sending !== null}
+                    className="flex items-center justify-center gap-1.5 rounded-lg border border-[#25D366]/50 bg-[#25D366]/10 px-3 py-2 text-xs font-semibold text-[#128C4A] transition hover:bg-[#25D366]/20 disabled:cursor-not-allowed disabled:opacity-50 dark:text-[#7DF9C2]"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 004.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 14.09c-.24.68-1.4 1.3-1.93 1.35-.53.05-1.02.15-2.88-.6-2.24-.9-3.67-3.2-3.78-3.35-.11-.15-.9-1.2-.9-2.29 0-1.09.57-1.63.77-1.85.2-.22.44-.28.59-.28h.42c.14 0 .32-.05.5.38.18.44.62 1.52.67 1.63.05.11.09.24.02.39-.07.15-.11.24-.22.37-.11.13-.23.29-.33.39-.11.11-.22.23-.1.45.12.22.53.88 1.14 1.42.78.7 1.44.92 1.66 1.02.22.11.35.09.48-.05.13-.15.55-.64.7-.86.15-.22.29-.18.49-.11.2.07 1.28.6 1.5.71.22.11.37.16.42.25.05.09.05.5-.19 1.18z" />
+                    </svg>
+                    {sending === "whatsapp" ? "Sending…" : "WhatsApp details"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => sendDetails("sms")}
+                    disabled={!consent || phone.length !== 10 || sending !== null}
+                    className="flex items-center justify-center gap-1.5 rounded-lg border border-LightSkyBlue bg-white px-3 py-2 text-xs font-semibold text-SlateBlueText transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-dark_border dark:bg-darklight dark:text-darktext"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M8 3h8a2 2 0 012 2v14a2 2 0 01-2 2H8a2 2 0 01-2-2V5a2 2 0 012-2zm0 2v14h8V5H8zm4 11.5a1 1 0 110 2 1 1 0 010-2z" />
+                    </svg>
+                    {sending === "sms" ? "Sending…" : "SMS details"}
+                  </button>
+                </div>
+
+                {notice ? (
+                  <p
+                    className={`rounded-lg border px-3 py-2 text-xs leading-5 ${
+                      notice.kind === "err"
+                        ? "border-red-200 bg-red-50 text-red-600"
+                        : "border-green-200 bg-green-50 text-green-700"
+                    }`}
+                  >
+                    {notice.text}
+                  </p>
+                ) : null}
 
                 <div aria-live="polite">
                   {message ? (
