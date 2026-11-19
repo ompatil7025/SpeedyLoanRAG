@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
         id: callSid || `lead-${Date.now()}`,
         callSid: callSid || `lead-${Date.now()}`,
         name: callerName,
-        phone: from || state.phone || "",
+        phone: state.phone || from || "",
         language: LANGUAGE_LABELS[reply.language],
         createdAt: new Date().toISOString(),
         transcript: next.history.map((turn) => ({ role: turn.role, text: turn.text })),
@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
       const result = await sendLeadToWhatsApp(
         formatLeadMessage({
           name: callerName,
-          phone: from || state.phone || "",
+          phone: state.phone || from || "",
           language: LANGUAGE_LABELS[reply.language],
           analysis,
         })
