@@ -55,11 +55,15 @@ const VoiceCallSection: React.FC = () => {
     setStatus("sending");
     setMessage("");
 
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20000);
+
     try {
       const res = await fetch("/api/voice/outbound/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, name, language, consent }),
+        signal: controller.signal,
       });
 
       const data = (await res.json()) as { error?: string; ok?: boolean };
@@ -74,11 +78,13 @@ const VoiceCallSection: React.FC = () => {
 
       setStatus("dialling");
       setMessage(
-        "Calling you now — please answer in the next 30 seconds. Sneha will greet you in your chosen language."
+        "Calling you now - please answer in the next 30 seconds. Sneha will greet you in your chosen language."
       );
     } catch {
       setMessage(ERROR_TEXT.call_failed);
       setStatus("error");
+    } finally {
+      clearTimeout(timer);
     }
   };
 
@@ -272,10 +278,14 @@ const VoiceCallSection: React.FC = () => {
 
                 <button
                   type="submit"
-                  disabled={busy || !consent || phone.length !== 10}
+                  disabled={busy || !consent || phone.length !== 10 || configured === false}
                   className="w-full rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-RegalBlue disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {busy ? "Placing your call…" : "Call me now"}
+                  {configured === false
+                    ? "Calling line activating…"
+                    : busy
+                      ? "Placing your call…"
+                      : "Call me now"}
                 </button>
 
                 <div className="grid grid-cols-2 gap-2">
