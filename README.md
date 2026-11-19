@@ -84,7 +84,7 @@ npm run lint     # ESLint
 | Variable | Scope | Required in production | Purpose |
 |---|---|---|---|
 | `NEXT_PUBLIC_SITE_URL` | public | yes | Canonical origin used for metadata and links |
-| `NEXT_PUBLIC_SUPABASE_URL` | public | yes | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_URL` | public | yes | Supabase project URL |  
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | public | yes | Supabase anonymous key |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | public | optional | Supabase publishable key (newer projects) |
 | `NEXT_PUBLIC_GEMINI_API_KEY` | public | yes | Gemini access for `/api/chat` and the voice agent |
