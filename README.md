@@ -21,7 +21,7 @@ A marketing and lead-generation site for loan products — personal, home, busin
 - A Gemini-powered RAG chatbot (`/api/chat`) that answers loan questions from a curated knowledge base
 - WhatsApp and email lead capture, an EMI calculator and a credit-score entry point
 - Structured data (Organization, FinancialService, FAQPage, BreadcrumbList, WebSite, Person) for search and AI answer engines
-- PWA manifest, `robots.txt`, XML sitemaps and `llms.txt` for crawler guidance
+- PWA manifest, `robots.txt`, XML sitemaps and `llms.txt` for crawler guidance 
 
 ## 2. Routes
 
