@@ -48,6 +48,7 @@ export async function GET(req: NextRequest) {
       summary: lead.summary,
       recommendedProducts: lead.recommendedProducts,
       nextAction: lead.nextAction,
+      status: lead.status ?? "qualified",
     })),
   });
 }

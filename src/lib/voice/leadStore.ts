@@ -11,7 +11,11 @@ import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import type { LeadAnalysis } from "./lead";
 
+export type LeadStatus = "in_progress" | "qualified";
+
 export interface StoredLead extends LeadAnalysis {
+  /** in_progress = partial answers captured mid-call, qualified = interview completed. */
+  status?: LeadStatus;
   id: string;
   callSid: string;
   name: string;
@@ -84,6 +88,7 @@ export async function saveLead(lead: StoredLead): Promise<void> {
           score: lead.score,
           city: lead.city,
           summary: lead.summary,
+          status: lead.status ?? "qualified",
           data: lead,
           created_at: lead.createdAt,
         },
@@ -138,6 +143,7 @@ export async function listLeads(limit = 25): Promise<StoredLead[]> {
               ? (payload.recommendedProducts as string[])
               : [],
             nextAction: String(payload.nextAction ?? ""),
+            status: (record.status as LeadStatus) ?? (payload.status as LeadStatus) ?? "qualified",
             transcript: Array.isArray(payload.transcript) ? payload.transcript : [],
           } satisfies StoredLead;
         });

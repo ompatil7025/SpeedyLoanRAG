@@ -16,7 +16,7 @@ import {
   noInputPrompt,
 } from "@/lib/voice/agent";
 import { LANGUAGE_LABELS, voiceConfig } from "@/lib/voice/config";
-import { analyseLead, formatLeadMessage } from "@/lib/voice/lead";
+import { analyseLead, formatLeadMessage, heuristicAnalysis } from "@/lib/voice/lead";
 import { saveLead } from "@/lib/voice/leadStore";
 import { decodeState, encodeState, newCallState, type AgentTurn } from "@/lib/voice/state";
 import { logVoiceCall } from "@/lib/voice/store";
@@ -110,9 +110,40 @@ export async function POST(req: NextRequest) {
     leadSent: state.leadSent,
   };
 
+  // -- Capture partial answers as they arrive ----------------------------------
+  // Cheap heuristic pass (no model call) so the leads panel fills up while the
+  // customer is still talking, instead of only appearing at the end.
+  const callerName = state.callerName || state.name || "";
+  // For outbound calls Twilio sends our number as From and the customer as To.
+  const customerPhone = state.phone || to || from || "";
+
+  try {
+    const partial = heuristicAnalysis(next.history);
+    const captured =
+      partial.loanType !== "Not shared" ||
+      partial.amountRequired !== "Not shared" ||
+      partial.monthlyIncome !== "Not shared" ||
+      partial.customerType !== "Unknown";
+
+    if (captured && callSid) {
+      await saveLead({
+        ...partial,
+        id: callSid,
+        callSid,
+        name: callerName,
+        phone: customerPhone,
+        language: LANGUAGE_LABELS[reply.language],
+        createdAt: new Date().toISOString(),
+        transcript: next.history.map((turn) => ({ role: turn.role, text: turn.text })),
+        status: "in_progress",
+      });
+    }
+  } catch (error) {
+    console.warn("[voice] partial lead failed:", error instanceof Error ? error.message : error);
+  }
+
   // -- Analyse the call, store the lead, push it to WhatsApp -------------------
   if (reply.sendLead && !state.leadSent) {
-    const callerName = state.callerName || state.name || "";
 
     try {
       const analysis = await analyseLead(next.history, callerName);
@@ -122,16 +153,17 @@ export async function POST(req: NextRequest) {
         id: callSid || `lead-${Date.now()}`,
         callSid: callSid || `lead-${Date.now()}`,
         name: callerName,
-        phone: state.phone || from || "",
+        phone: customerPhone,
         language: LANGUAGE_LABELS[reply.language],
         createdAt: new Date().toISOString(),
         transcript: next.history.map((turn) => ({ role: turn.role, text: turn.text })),
+        status: "qualified",
       });
 
       const result = await sendLeadToWhatsApp(
         formatLeadMessage({
           name: callerName,
-          phone: state.phone || from || "",
+          phone: customerPhone,
           language: LANGUAGE_LABELS[reply.language],
           analysis,
         })

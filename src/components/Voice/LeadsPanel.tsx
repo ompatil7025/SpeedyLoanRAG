@@ -22,6 +22,7 @@ interface Lead {
   summary: string;
   recommendedProducts: string[];
   nextAction: string;
+  status?: "in_progress" | "qualified";
 }
 
 const INTENT_STYLE: Record<string, string> = {
@@ -181,6 +182,11 @@ const LeadsPanel: React.FC = () => {
                   </div>
 
                   <div className="col-span-2 flex items-center justify-between gap-2 lg:col-span-1 lg:justify-end">
+                    {lead.status === "in_progress" ? (
+                      <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                        Capturing…
+                      </span>
+                    ) : null}
                     <span
                       className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
                         INTENT_STYLE[lead.intent] ?? INTENT_STYLE.Cold
