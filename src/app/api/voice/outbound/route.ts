@@ -19,25 +19,26 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const WINDOW_MS = 60 * 60 * 1000;
-const MAX_CALLS_PER_WINDOW = 3;
+const MAX_PER_IP = 10;      // generous: staff testing from one connection
+const MAX_PER_NUMBER = 3;   // strict: never spam the same person
 
 // Best-effort limiter. Serverless instances each keep their own map, so this
 // slows abuse down rather than guaranteeing a hard cap.
 const recentCalls = new Map<string, number[]>();
 
-function isRateLimited(ip: string): boolean {
+function tooMany(key: string, max: number): boolean {
   const now = Date.now();
-  const hits = (recentCalls.get(ip) ?? []).filter((at) => now - at < WINDOW_MS);
+  const hits = (recentCalls.get(key) ?? []).filter((at) => now - at < WINDOW_MS);
+  recentCalls.set(key, hits);
+  return hits.length >= max;
+}
 
-  if (hits.length >= MAX_CALLS_PER_WINDOW) {
-    recentCalls.set(ip, hits);
-    return true;
-  }
-
-  hits.push(now);
-  recentCalls.set(ip, hits);
+/** Recorded only after Twilio accepts the call, so failed attempts never count. */
+function recordCall(key: string): void {
+  const now = Date.now();
+  const hits = [...(recentCalls.get(key) ?? []), now];
+  recentCalls.set(key, hits);
   if (recentCalls.size > 5000) recentCalls.clear();
-  return false;
 }
 
 function normaliseIndianMobile(input: string): string | null {
@@ -85,8 +86,15 @@ export async function POST(req: NextRequest) {
     req.headers.get("x-real-ip") ||
     "unknown";
 
-  if (isRateLimited(ip)) {
-    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  if (tooMany(`ip:${ip}`, MAX_PER_IP) || tooMany(`to:${to}`, MAX_PER_NUMBER)) {
+    return NextResponse.json(
+      {
+        error: "rate_limited",
+        message:
+          "This number has had several call attempts in the last hour. Please try again later or call 73500 05590.",
+      },
+      { status: 429 }
+    );
   }
 
   const name = (payload.name ?? "").trim().slice(0, 60) || undefined;
@@ -97,6 +105,9 @@ export async function POST(req: NextRequest) {
 
   try {
     const call = await createOutboundCall({ to, twimlUrl, statusUrl });
+
+    recordCall(`ip:${ip}`);
+    recordCall(`to:${to}`);
 
     await logVoiceCall({
       call_sid: call.sid || `pending-${Date.now()}`,
@@ -111,6 +122,9 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     const message = error instanceof Error ? error.message : "call_failed";
     console.error("[voice] outbound failed:", message);
-    return NextResponse.json({ error: "call_failed" }, { status: 502 });
+    return NextResponse.json(
+      { error: "call_failed", message: "Twilio rejected the call. Check the caller ID and that this number is verified on the trial account." },
+      { status: 502 }
+    );
   }
 }
